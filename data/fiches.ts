@@ -1,6 +1,7 @@
-/* Fiches de révision et de travail – une entrée par cours (HTML) */
-window.FICHES={
-"I4.7.MEO.02":`
+// Fiches de révision par cours (HTML de confiance, rendu dans .fiche-prose).
+// Liens internes : <a href="/fiches/<code>">.
+export const FICHES: Record<string, string> = {
+  "I4.7.MEO.02": `
 <h4>1. Les deux documents de synthèse</h4>
 <table><tr><th>Bilan (photo à une date)</th><th>Compte de résultat (film de l'exercice)</th></tr>
 <tr><td><b>Actif</b> : immobilisations (corporelles, incorporelles, financières), actif circulant (stocks, créances clients, disponibilités)<br><b>Passif</b> : capitaux propres (capital, réserves, résultat), dettes financières, dettes d'exploitation (fournisseurs, fiscales et sociales)</td><td><b>Produits</b> – <b>Charges</b> = <b>Résultat</b>, en 3 niveaux : exploitation, financier, exceptionnel ; puis participation et impôt sur les sociétés</td></tr></table>
@@ -30,8 +31,7 @@ window.FICHES={
 <h4>6. Exercice type (30 min)</h4>
 <div class="box x">Une start-up vend un produit 80 €, coût variable unitaire 50 €, charges fixes annuelles 60 000 €.<br>1) Taux de MCV ? 2) Seuil de rentabilité en unités et en € ? 3) Pour 3 000 unités vendues : résultat et marge de sécurité ? 4) Machine de 24 000 € qui baisse le coût variable de 5 € : délai de récupération à 3 000 u/an ?<br><details><summary class="small">Corrigé</summary>1) 30/80 = 37,5 % · 2) 60 000/30 = 2 000 u, soit 160 000 € · 3) 3 000×30 – 60 000 = 30 000 € ; MS = 240 000 – 160 000 = 80 000 € · 4) gain 15 000 €/an → 1,6 an (sans compter l'amortissement)</details></div>
 <h4>Pièges classiques</h4><ul><li>Confondre marge brute et marge sur coût variable</li><li>Oublier que l'amortissement est une charge non décaissée (il faut le rajouter dans la CAF)</li><li>Mélanger HT et TTC</li></ul>`,
-
-"I4.7.ESE.01":`
+  "I4.7.ESE.01": `
 <h4>1. Déchets et économie circulaire</h4>
 <ul><li><b>Hiérarchie des modes de traitement</b> (directive-cadre 2008/98/CE) : prévention → réemploi → recyclage → autre valorisation (énergétique) → élimination (enfouissement)</li>
 <li>Fin de vie en France : ordre de grandeur à retenir pour les déchets ménagers ≈ ⅓ valorisés matière/organique, ⅓ incinérés avec récupération d'énergie, un peu moins d'⅓ enfouis. Vérifie les chiffres exacts de ton cours, c'est ce qui est demandé.</li>
@@ -61,8 +61,7 @@ window.FICHES={
 <li>Traitement de l'eau : prétraitement → primaire (décantation) → secondaire (biologique) → tertiaire (N, P, désinfection) ; sous-produit : boues de STEP</li>
 <li>Sols : sources (industrie, stockages d'hydrocarbures, mines, retombées atmosphériques), polluants (HAP, métaux lourds, solvants chlorés), bases de données <b>BASOL / BASIAS</b> (Géorisques)</li></ul>
 <h4>Méthode de rédaction à l'examen (1 h 30)</h4><div class="box w">Pour chaque question « expliquer / caractériser » : définition → mécanisme/principe → exemple concret → enjeu ou limite. Quatre phrases courtes valent mieux qu'un paragraphe flou.</div>`,
-
-"I4.7.MEO.01":`
+  "I4.7.MEO.01": `
 <h4>1. Structures juridiques</h4>
 <table><tr><th>Forme</th><th>Associés</th><th>Capital</th><th>Responsabilité</th><th>Points clés</th></tr>
 <tr><td>EI / micro-entreprise</td><td>1</td><td>—</td><td>Patrimoine pro séparé depuis 2022</td><td>Simple, plafonds de CA (micro)</td></tr>
@@ -85,8 +84,7 @@ window.FICHES={
 <li><b>Procédure disciplinaire</b> : convocation à un entretien préalable → entretien (assistance possible) → notification de la sanction (2 j ouvrables à 1 mois après) ; prescription des faits fautifs : 2 mois. Licenciement : cause réelle et sérieuse, faute grave / lourde</li>
 <li><b>Relations collectives</b> : CSE (dès 11 salariés), délégués syndicaux, conventions et accords collectifs, négociation annuelle obligatoire, droit de grève, inspection du travail</li></ul>
 <div class="box x"><b>Cas pratique type</b> : « Deux étudiants veulent créer une start-up avec un investisseur. Quelle forme ? Comment protéger leur logiciel et leur nom ? Quel contrat pour leur premier salarié ? » Réponds en mode syllogisme : règle → application au cas → conclusion.</div>`,
-
-"I4.7.MEO.04":`
+  "I4.7.MEO.04": `
 <h4>1. Planification hiérarchisée (MRP2)</h4>
 <ol><li><b>PIC</b> (plan industriel et commercial) : moyen terme (12-18 mois), par familles de produits, en volumes ; équilibre charge/capacité ; stratégies : <i>synchrone</i> (suivre la demande), <i>lissée</i> (production constante + stocks), <i>mixte</i></li>
 <li><b>PDP</b> (plan directeur de production) : court terme, par produit fini, par semaine ; calcul du disponible à la vente</li>
@@ -102,8 +100,7 @@ window.FICHES={
 <h4>3. Pilotage des flux</h4><table><tr><th>Flux poussés</th><th>Flux tirés</th></tr><tr><td>Sur prévisions, MRP, stocks tampons</td><td>Sur consommation réelle, kanban, juste-à-temps, CONWIP</td></tr></table>
 <h4>4. Logistique externe et achats</h4><ul><li>Modes de transport (route, rail, maritime, aérien, multimodal), Incoterms (EXW, FOB, CIF, DAP, DDP…), prestataires 3PL / 4PL, cross-docking, entrepôts</li><li>Dimension environnementale : choix du mode, taux de remplissage, mutualisation, relocalisation, bilan carbone (scope 3)</li><li><b>Achats</b> : expression du besoin → sourcing → appel d'offres → négociation → contractualisation → suivi fournisseurs ; matrice de Kraljic ; coût total de possession (TCO)</li></ul>
 <div class="box x"><b>Exercice</b> : D = 12 000 u/an, Cc = 50 €, prix = 20 €, taux de stockage = 25 %. Calcule Q*, le nombre de commandes par an et le coût total de gestion.<details><summary class="small">Corrigé</summary>Cs = 5 € → Q* = √(2×12 000×50/5) ≈ 490 u ; ≈ 24,5 commandes/an ; coût ≈ 24,5×50 + 245×5 ≈ 2 450 €</details></div>`,
-
-"I4.7.MEO.03":`
+  "I4.7.MEO.03": `
 <h4>1. La maison du TPS (Toyota Production System)</h4>
 <ul><li><b>Toit</b> : qualité, coûts, délais, sécurité, moral</li><li><b>Piliers</b> : <b>Juste-à-temps</b> (takt, flux continu, flux tiré) et <b>Jidoka</b> (autonomation, arrêt au défaut, andon, poka-yoke)</li><li><b>Fondations</b> : heijunka (lissage), standardisation du travail, kaizen, stabilité (5S, TPM)</li><li>Au centre : l'humain (implication, résolution de problèmes à la source, respect)</li></ul>
 <h4>2. Outils du lean</h4><p>5S · VSM · SMED · kanban · poka-yoke · andon · gemba · standard work · A3 · 7 (+1) gaspillages <b>TIMWOOD</b> : Transport, Inventaire, Mouvements, Attente, Surproduction, Surprocessus, Défauts (+ talents inexploités).</p>
@@ -116,15 +113,13 @@ window.FICHES={
 <h4>5. Six Sigma – DMAIC</h4><table><tr><th>Étape</th><th>Outils</th></tr><tr><td>Define</td><td>Charte projet, SIPOC, VOC/CTQ</td></tr><tr><td>Measure</td><td>Plan de collecte, MSA/R&amp;R, capabilité <span class="f">Cp = (LSS–LSI)/6σ</span>, <span class="f">Cpk = min(LSS–μ, μ–LSI)/3σ</span></td></tr><tr><td>Analyze</td><td>Ishikawa, 5 pourquoi, Pareto, histogrammes, régression, tests d'hypothèse</td></tr><tr><td>Improve</td><td>Plans d'expériences, solutions, pilotes</td></tr><tr><td>Control</td><td>Cartes de contrôle (X̄-R), standards, plan de surveillance</td></tr></table>
 <div class="box w"><b>Critiquer un résultat statistique</b> : taille d'échantillon, normalité, valeurs aberrantes, corrélation ≠ causalité, significativité (p-value &lt; 0,05), stabilité du processus avant le calcul de capabilité.</div>
 <div class="box x"><b>Exercice</b> : 2 équipes × 7 h 30 avec 30 min de pause chacune, demande 840 pièces/jour. Tâches : 40, 25, 35, 50, 30 s. Takt ? Postes minimum ?<details><summary class="small">Corrigé</summary>Temps dispo = 2 × 7 h = 50 400 s → takt = 50 400 / 840 = 60 s. Σ = 180 s → minimum théorique 3 postes. Avec l'ordre imposé et des tâches indivisibles : {40} {25+35} {50} {30} → 4 postes, efficacité = 180 / (4 × 60) = 75 %.</details></div>`,
-
-"I4.7.MEO.05":`
+  "I4.7.MEO.05": `
 <h4>1. L'entreprise comme système</h4><p>Approche systémique : entrées / processus / sorties, finalité, environnement, rétroactions. Typologie des processus : <b>management</b> (pilotage), <b>réalisation</b> (cœur de métier), <b>support</b> (RH, SI, achats…). Cartographie macro → pour chaque processus : pilote, entrées, sorties, ressources, indicateurs.</p>
 <h4>2. Modéliser les processus</h4><ul><li><b>SIPOC</b> : Suppliers – Inputs – Process (5 à 7 étapes) – Outputs – Customers</li><li><b>BPMN</b> : couloirs (pools/lanes), événements (début, intermédiaire, fin), activités, passerelles (XOR, AND), flux de séquence et de messages</li><li>Diagnostic : entretiens, observation, irritants, gaspillages d'information, ruptures de flux, ressaisies</li></ul>
 <h4>3. Systèmes d'information et ERP</h4><ul><li>ERP / PGI : base de données unique, modules intégrés : finance/comptabilité, achats, ventes, stocks, production (MRP), RH, maintenance, qualité, CRM</li><li>Acteurs d'un projet SI : MOA (métier, besoin), MOE (réalisation, intégrateur), sponsor, chef de projet, key users, utilisateurs finaux, éditeur</li><li>Étapes : diagnostic et expression des besoins → cahier des charges → choix de la solution → paramétrage / développements → reprise des données → tests (recette) → formation → bascule → support et amélioration</li></ul>
 <h4>4. Conduite du changement (AA C11)</h4><ul><li>Caractériser un changement : nature (technique, organisationnel, culturel), ampleur, rythme (incrémental / radical), imposé ou choisi</li><li><b>Courbe du changement</b> (Kübler-Ross) : choc → déni → colère → marchandage → dépression → acceptation → engagement</li><li>Les 4 niveaux d'intérêt / types d'attitude : à rapprocher du cours (souvent : moteurs, suiveurs/hésitants, opposants/résistants, indifférents ; ou sociodynamique synergie/antagonisme : alliés, engagés, hésitants, déchirés, opposants, irréductibles…) → <i>retiens la grille exacte vue en TD</i></li><li>Plan d'accompagnement : diagnostic des parties prenantes → communication (pourquoi, quoi, quand) → formation → implication des relais → quick wins → suivi des indicateurs et des résistances</li></ul>
 <div class="box x"><b>Soutenance du 16/12</b> : prépare une cartographie de processus + un BPMN d'un processus critique + un plan de conduite du changement pour l'ERP. Chaque slide = un critère PITCH.</div>`,
-
-"I4.7-PROJ.01":`
+  "I4.7-PROJ.01": `
 <h4>1. Fil rouge du PCE</h4><ol><li>Problème client / besoin → proposition de valeur</li><li>Étude de marché : taille, segmentation, cible, concurrence, PESTEL</li><li>Offre : produit/service, prix, distribution, communication (4P / 7P)</li><li>Business model canvas (9 blocs)</li><li>Stratégie : 5 forces de Porter, SWOT, scénarios à 3 ans</li><li>Plan financier : investissements, compte de résultat prévisionnel, plan de financement, trésorerie, seuil de rentabilité</li><li>Juridique : statut, PI, contrats</li><li>Risques et plan d'action</li></ol>
 <h4>2. Outils à mobiliser</h4>
 <table><tr><th>Outil</th><th>Ce que le jury attend</th></tr>
@@ -136,16 +131,13 @@ window.FICHES={
 <tr><td>Matrice des risques</td><td>Probabilité × impact, mesures de prévention et de mitigation</td></tr></table>
 <h4>3. Stratégie (cours I4.7.MEO.06)</h4><p>Concepts : mission, vision, avantage concurrentiel, stratégies génériques (domination par les coûts, différenciation, focalisation), domaines d'activité stratégique, matrices BCG / McKinsey, croissance (Ansoff), océan bleu. Une recommandation = constat → option retenue → justification → plan d'action → indicateurs.</p>
 <div class="box x"><b>Jalons</b> : Mid Jury 17/11 · Session 4 24/11 · Session 5 02/12 · Autonomie 16/12 · <b>Final Jury 26/01</b>. Avant chaque jalon, vérifie que chaque critère PITCH du C07 a une « preuve » dans ton dossier.</div>`,
-
-"I4.7.MEO.06":`<p>La stratégie est évaluée dans le cadre du PCE : voir la fiche <a href="#fiches" onclick="event.preventDefault();pickFiche('I4.7-PROJ.01')">Projet création d'entreprise</a>, partie 3.</p>
+  "I4.7.MEO.06": `<p>La stratégie est évaluée dans le cadre du PCE : voir la fiche <a href="/fiches/I4.7-PROJ.01">Projet création d'entreprise</a>, partie 3.</p>
 <h4>Les concepts fondamentaux</h4><ul><li>Diagnostic externe (PESTEL, Porter, facteurs clés de succès) et interne (chaîne de valeur, ressources et compétences, VRIN)</li><li>Choix : stratégies génériques, Ansoff, intégration, diversification, internationalisation, alliances</li><li>Mise en œuvre : structure, culture, pilotage (balanced scorecard)</li><li>RSE intégrée : parties prenantes, ISO 26000, raison d'être / entreprise à mission</li></ul>`,
-
-"MKT":`
+  "MKT": `
 <h4>Démarche marketing</h4><ol><li><b>Analyse</b> : marché (taille, tendances), clients (besoins, motivations, freins), concurrence, environnement (PESTEL)</li><li><b>Stratégie</b> : Segmentation → Ciblage → Positionnement (STP) ; carte perceptuelle</li><li><b>Opérationnel</b> : marketing mix 4P (Produit, Prix, Place, Promotion) + 3P pour les services (Personnes, Processus, Preuve physique)</li><li><b>Mesure</b> : KPI (part de marché, taux de conversion, CAC, CLV, NPS)</li></ol>
 <h4>Fixer un prix</h4><ul><li>Par les coûts (coût de revient + marge)</li><li>Par la demande (prix psychologique, élasticité)</li><li>Par la concurrence (alignement, écrémage, pénétration)</li></ul><p>Cohérence prix / qualité / positionnement.</p>
 <div class="box x"><b>Examen du 04/01</b> (1 h 30) : entraîne-toi sur une étude de cas complète (diagnostic → STP → mix) à partir de ton projet PCE.</div>`,
-
-"I4.7.PROJ.02":`
+  "I4.7.PROJ.02": `
 <h4>1. Ton système : le Robot Soccer (3 roues omnidirectionnelles)</h4>
 <ul><li>Variables : position et orientation (x, y, θ), vitesses (vx, vy, ω) dans le repère monde et le repère robot ; vitesses angulaires des roues φ̇₁, φ̇₂, φ̇₃ ; mesures des encodeurs</li>
 <li>Géométrie : roues à 120° (angles αᵢ), rayon de roue r, distance centre–roue L</li>
@@ -156,8 +148,7 @@ window.FICHES={
 <h4>3. Implémentation et validation (AA C04 : valider)</h4><ul><li>Python : simulation (intégration d'Euler / RK4), visualisation (matplotlib / pygame)</li><li>Boucle d'échange jumeau ↔ réel : API du robot, MQTT, websockets…</li><li>Commande : PID en vitesse par roue ou en position ; réglage (Ziegler-Nichols, essais)</li><li><b>Identification</b> : moindres carrés pour minimiser <span class="f">J = Σ (y_mes − y_sim)²</span> (scipy.optimize.least_squares)</li><li>Scénarios : ligne droite, rotation pure, trajectoire en carré, translation diagonale → erreurs RMS, écarts finaux, recommandations</li></ul>
 <h4>4. Gestion de projet agile (AA C07)</h4><ul><li>Backlog, sprints, revues régulières, tableau de bord (Trello/GitHub Projects)</li><li>Git : historique des commits, branches, README ; documents centralisés (Drive/Teams)</li></ul>
 <div class="box x"><b>Soutenance du 03/02</b> : démo jumeau vs réel, courbe d'erreur, choix de modélisation justifiés, retour sur la méthode agile. Prépare une slide « critères PITCH ↔ preuves ».</div>`,
-
-"I4.7.HUM.01":`
+  "I4.7.HUM.01": `
 <h4>1. Repères chronologiques</h4>
 <table><tr><th>Période</th><th>Idées / phénomènes</th><th>Penseurs</th></tr>
 <tr><td>Antiquité</td><td>Démocratie athénienne (citoyen, ecclésia, tirage au sort), République romaine (magistratures, Sénat, res publica)</td><td><b>Platon</b> (critique de la démocratie, philosophe-roi, La République) ; <b>Aristote</b> (homme animal politique, typologie des régimes, juste milieu, Politique)</td></tr>
@@ -166,34 +157,28 @@ window.FICHES={
 <h4>2. Régimes et pouvoirs (AA C05)</h4><ul><li>Régimes : parlementaire, présidentiel, semi-présidentiel (France), monarchie constitutionnelle, autoritaire, totalitaire</li><li>Séparation des pouvoirs : exécutif / législatif / judiciaire ; souple vs stricte ; contre-pouvoirs (médias, justice, société civile)</li><li>Acteurs : partis, élus, syndicats, ONG, associations, citoyens ; participation : élections, référendums, débats publics, pétitions, conventions citoyennes</li><li>Rapports de force : abstention, manifestations, grèves, désobéissance civile, lobbying</li></ul>
 <h4>3. Constantes et variations</h4><p>Questions qui traversent les époques : qui gouverne (un, quelques-uns, tous) ? D'où vient la légitimité (Dieu, tradition, contrat, élection) ? Liberté vs sécurité ? Individu vs collectif ? Égalité vs hiérarchie ?</p>
 <div class="box x"><b>Entraînement</b> : choisis un thème d'actualité (IA et démocratie, populismes…) et relie-le à 2 penseurs d'époques différentes : constante + variation.</div>`,
-
-"I4.7.HUM.02":`
+  "I4.7.HUM.02": `
 <h4>1. Compréhension (C06) : méthode</h4><ol><li>Anticipate : titre, source, date, type de document</li><li>First listening/reading : who, what, where, when, why</li><li>Second pass : main ideas + examples + figures</li><li>Synthesis : 5-line summary in your own words + the author's stance</li></ol>
 <h4>2. Expression orale (C10)</h4><ul><li>Structure : hook → outline → 3 points (claim, evidence, example) → conclusion + call to action</li><li>Phrases utiles : <i>"I'd like to start by…", "This leads me to…", "To put it differently…", "On the one hand… on the other hand…", "That's a fair point, however…", "Could you elaborate on…?"</i></li><li>Débat : agree / partially agree / disagree politely ; reformuler avant de contredire</li><li>Ne pas lire : support en mots-clés, regard, pauses</li></ul>
 <h4>3. TOEIC (prep 12/01, 19/01, 26/01)</h4><table><tr><th>Partie</th><th>Piège / astuce</th></tr><tr><td>Listening 1-4</td><td>Lire les questions avant l'audio ; méfiance envers les mots qui sonnent pareil</td></tr><tr><td>Reading 5</td><td>Identifier d'abord la nature du mot manquant (nom, adjectif, adverbe, verbe)</td></tr><tr><td>Reading 6-7</td><td>Gérer le temps : ≈ 1 min par question, ne pas bloquer</td></tr></table>
 <div class="box">Routine 15 min/jour : un podcast pro (BBC Worklife, HBR IdeaCast) → résumé oral de 1 min enregistré.</div>`,
-
-"I4.7.HUM.04":`
+  "I4.7.HUM.04": `
 <h4>LV2 – Portugais (C06 &amp; C10 · projet créatif)</h4>
 <ul><li><b>Compréhension</b> : extraire les points principaux d'une interview, d'une œuvre (musique, littérature, cinéma lusophone), identifier le registre et l'intention de l'auteur</li><li><b>Projet créatif</b> : justifier ton implication, expliquer ta méthodologie, citer des références culturelles (Brésil, Portugal, Angola, Mozambique, Cap-Vert…)</li></ul>
 <h4>Structures utiles</h4><ul><li>Opinion : <i>Na minha opinião… / Acho que… / Parece-me que…</i></li><li>Structurer : <i>Em primeiro lugar… / Além disso… / Por outro lado… / Em suma…</i></li><li>Méthode : <i>Escolhi este tema porque… / O meu projeto consiste em… / Inspirei-me em…</i></li><li>Points de grammaire à revoir : ser/estar, pretérito perfeito vs imperfeito, subjonctif après <i>espero que, é importante que</i></li></ul>
 <div class="box">Astuce : relie ton projet créatif à ton héritage congolais et à l'Angola lusophone voisin : c'est un angle original et personnel.</div>`,
-
-"I4.ICT.01":`
+  "I4.ICT.01": `
 <h4>1. Candidature cohérente (C13-CPE2-01)</h4><ul><li><b>CV</b> : titre ciblé, 3-4 compétences clés en lien avec l'offre, expériences en format action → résultat chiffré, projets ICAM (jumeau numérique, PCE), engagements (BEI, Eloquentia)</li><li><b>Lettre / mail</b> : Vous (l'entreprise, son enjeu) → Moi (ce que j'apporte, preuves) → Nous (ce qu'on fera ensemble)</li><li><b>Pitch de 60 s</b> : qui je suis → ce que j'ai fait de marquant → ce que je cherche et pourquoi chez eux</li></ul>
 <h4>2. Projet professionnel (C13-CPE2-02)</h4><ul><li>Ce qui m'enthousiasme (notes après la table ronde métiers du 19/11 et la Journée RH du 14/01)</li><li>Mes valeurs essentielles (3 maximum, avec un exemple vécu pour chacune)</li><li>Choix à venir : stage, international, double diplôme (présentation Master SMMS le 16/12), spécialisation</li></ul>
 <div class="box x">Jalons : Table ronde 19/11 · Candidature et profil 16/12 · Point promo 05/01 · Journée RH 14/01 · Relecture projet pro 21/01.</div>`,
-
-"I4.7.ERD.03":`
+  "I4.7.ERD.03": `
 <h4>Relecture d'Experiment (C13-CPE4)</h4><p>Grille de relecture à remplir au fil de l'eau :</p><ol><li>Ce que j'ai fait (faits marquants, joies, doutes, épreuves, rencontres)</li><li>Ce qui a changé par rapport au plan initial, et pourquoi</li><li>Différences culturelles observées : ce qui m'a surprise, comment j'ai dû sortir de mon cadre de référence</li><li>Mon engagement : objectifs atteints ou non, ce dont je suis fière</li><li>Mes mouvements intérieurs à chaque étape et leur impact</li><li>Mes points d'appui pour la suite, les causes qui me tiennent à cœur</li></ol>
 <div class="box">Utilise la zone « Mes notes » de l'onglet Par cours pour tenir ce journal.</div>`,
-
-"IA":`<h4>Outils numériques et IA (C04-CPE1)</h4><ul><li>Recenser : assistants (Claude, ChatGPT, Gemini, Copilot), traduction (DeepL), correcteurs, illustration, outils de code</li><li>Comparer : pertinence, fiabilité, confidentialité des données, coût, sources citées</li><li>Rédiger une bonne requête : rôle + contexte + tâche + contraintes + format attendu + exemple</li><li>Évaluer : vérifier les faits et les chiffres, repérer les hallucinations, comparer avec une source primaire</li><li>Réviser : itérer, garder la trace des choix (ce que l'IA a proposé / ce que j'ai retenu et pourquoi)</li></ul>`,
-
-"I4.8.HUM.04":`<p class="muted">Semestre I4.8 : fiche de base, à enrichir quand le cours commence.</p><h4>Théories morales</h4><table><tr><th>Approche</th><th>Question</th><th>Auteurs</th></tr><tr><td>Déontologie</td><td>Quel est mon devoir ? (règle universalisable)</td><td>Kant</td></tr><tr><td>Conséquentialisme / utilitarisme</td><td>Quelle action maximise le bien-être ?</td><td>Bentham, Mill</td></tr><tr><td>Éthique des vertus</td><td>Que ferait une personne vertueuse ?</td><td>Aristote</td></tr><tr><td>Éthique de la discussion / du care</td><td>Quelle procédure juste ? Qui est vulnérable ?</td><td>Habermas, Gilligan</td></tr></table><h4>Méthode d'analyse d'un dilemme</h4><ol><li>Faits et parties prenantes (y compris les non-humains)</li><li>Valeurs en tension</li><li>Lecture déontologique, conséquentialiste, des vertus</li><li>Options et recommandation argumentée</li><li>Cohérence avec la RSE de l'entreprise</li></ol>`,
-"I4.8.HUM.06":`<p class="muted">Semestre I4.8 : fiche de base.</p><h4>Grille d'analyse géopolitique</h4><ol><li>Contexte historique, géographique, culturel</li><li>Cadre juridique (droit international, ONU, traités)</li><li>Acteurs et rapports de force (États, OI, firmes, ONG, groupes armés)</li><li>Représentations de chaque acteur</li><li>Échelles (locale, régionale, mondiale)</li><li>Scénarios prospectifs</li><li>Critique des sources</li></ol><div class="box">Sujet possible et personnel : les minerais critiques de la RDC (cobalt, coltan) et la transition énergétique.</div>`,
-"I4.8.HUM.05":`<p class="muted">Semestre I4.8 : fiche de base.</p><h4>Pensée écologique</h4><ul><li>Courants : conservationnisme / préservationnisme, écologie profonde (Næss), écologie sociale, décroissance, croissance verte, écologie intégrale (Laudato si')</li><li>Concepts : limites planétaires, anthropocène, justice climatique, sobriété</li><li>Controverses : nucléaire, voitures électriques, méga-bassines… → cartographier acteurs, arguments, rapports de force</li><li>Scénarios de transition : ADEME « Transition(s) 2050 », négaWatt, RTE</li></ul>`,
-"I4.8.HUM.02":`<p>Suite de l'anglais I4.7 : voir la fiche <a href="#fiches" onclick="event.preventDefault();pickFiche('I4.7.HUM.02')">Anglais</a>. En I4.8, l'accent est mis sur l'argumentation sans script, le débat structuré (C1) et la synthèse écrite multi-sources.</p>`,
-"I4.8.HUM.03":`<p>Suite de la LV2 : projet créatif sur l'<b>innovation et l'ingénierie</b> en langue cible. Prépare un lexique technique portugais (energia, rede elétrica, sensor, protótipo, gêmeo digital…).</p>`,
-"I5.MEO.01":`<p class="muted">Cycle I5 : fiche de base.</p><h4>Contrôle de gestion</h4><ul><li>Budgets : ventes → production → achats → charges → investissements → trésorerie</li><li>Analyse des écarts : <span class="f">écart = réel − prévu</span>, décomposé en écart sur quantité et écart sur prix</li><li>Tableaux de bord et KPI : SMART, balanced scorecard (financier, client, processus, apprentissage)</li><li>Rentabilité : ROI, VAN, TRI, délai de récupération</li></ul>`
+  "IA": `<h4>Outils numériques et IA (C04-CPE1)</h4><ul><li>Recenser : assistants (Claude, ChatGPT, Gemini, Copilot), traduction (DeepL), correcteurs, illustration, outils de code</li><li>Comparer : pertinence, fiabilité, confidentialité des données, coût, sources citées</li><li>Rédiger une bonne requête : rôle + contexte + tâche + contraintes + format attendu + exemple</li><li>Évaluer : vérifier les faits et les chiffres, repérer les hallucinations, comparer avec une source primaire</li><li>Réviser : itérer, garder la trace des choix (ce que l'IA a proposé / ce que j'ai retenu et pourquoi)</li></ul>`,
+  "I4.8.HUM.04": `<p class="muted">Semestre I4.8 : fiche de base, à enrichir quand le cours commence.</p><h4>Théories morales</h4><table><tr><th>Approche</th><th>Question</th><th>Auteurs</th></tr><tr><td>Déontologie</td><td>Quel est mon devoir ? (règle universalisable)</td><td>Kant</td></tr><tr><td>Conséquentialisme / utilitarisme</td><td>Quelle action maximise le bien-être ?</td><td>Bentham, Mill</td></tr><tr><td>Éthique des vertus</td><td>Que ferait une personne vertueuse ?</td><td>Aristote</td></tr><tr><td>Éthique de la discussion / du care</td><td>Quelle procédure juste ? Qui est vulnérable ?</td><td>Habermas, Gilligan</td></tr></table><h4>Méthode d'analyse d'un dilemme</h4><ol><li>Faits et parties prenantes (y compris les non-humains)</li><li>Valeurs en tension</li><li>Lecture déontologique, conséquentialiste, des vertus</li><li>Options et recommandation argumentée</li><li>Cohérence avec la RSE de l'entreprise</li></ol>`,
+  "I4.8.HUM.06": `<p class="muted">Semestre I4.8 : fiche de base.</p><h4>Grille d'analyse géopolitique</h4><ol><li>Contexte historique, géographique, culturel</li><li>Cadre juridique (droit international, ONU, traités)</li><li>Acteurs et rapports de force (États, OI, firmes, ONG, groupes armés)</li><li>Représentations de chaque acteur</li><li>Échelles (locale, régionale, mondiale)</li><li>Scénarios prospectifs</li><li>Critique des sources</li></ol><div class="box">Sujet possible et personnel : les minerais critiques de la RDC (cobalt, coltan) et la transition énergétique.</div>`,
+  "I4.8.HUM.05": `<p class="muted">Semestre I4.8 : fiche de base.</p><h4>Pensée écologique</h4><ul><li>Courants : conservationnisme / préservationnisme, écologie profonde (Næss), écologie sociale, décroissance, croissance verte, écologie intégrale (Laudato si')</li><li>Concepts : limites planétaires, anthropocène, justice climatique, sobriété</li><li>Controverses : nucléaire, voitures électriques, méga-bassines… → cartographier acteurs, arguments, rapports de force</li><li>Scénarios de transition : ADEME « Transition(s) 2050 », négaWatt, RTE</li></ul>`,
+  "I4.8.HUM.02": `<p>Suite de l'anglais I4.7 : voir la fiche <a href="/fiches/I4.7.HUM.02">Anglais</a>. En I4.8, l'accent est mis sur l'argumentation sans script, le débat structuré (C1) et la synthèse écrite multi-sources.</p>`,
+  "I4.8.HUM.03": `<p>Suite de la LV2 : projet créatif sur l'<b>innovation et l'ingénierie</b> en langue cible. Prépare un lexique technique portugais (energia, rede elétrica, sensor, protótipo, gêmeo digital…).</p>`,
+  "I5.MEO.01": `<p class="muted">Cycle I5 : fiche de base.</p><h4>Contrôle de gestion</h4><ul><li>Budgets : ventes → production → achats → charges → investissements → trésorerie</li><li>Analyse des écarts : <span class="f">écart = réel − prévu</span>, décomposé en écart sur quantité et écart sur prix</li><li>Tableaux de bord et KPI : SMART, balanced scorecard (financier, client, processus, apprentissage)</li><li>Rentabilité : ROI, VAN, TRI, délai de récupération</li></ul>`,
 };
