@@ -1,0 +1,347 @@
+@import "tailwindcss";
+
+/* Mode sombre piloté par la classe .dark (next-themes) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------- Jetons de couleur ---------- */
+:root {
+  --bg: #f5f4fb;
+  --fg: #15132b;
+  --muted: #67638a;
+  --card: #ffffff;
+  --card-strong: #ffffff;
+  --soft: #eeecf7;
+  --line: rgb(21 19 43 / 0.08);
+  --a1: #7c3aed; /* violet */
+  --a2: #0891b2; /* cyan */
+  --ok: #059669;
+  --warn: #d97706;
+  --bad: #dc2626;
+  --exam: #e11d48;
+  --shadow: 0 1px 2px rgb(21 19 43 / 0.04), 0 8px 24px -12px rgb(21 19 43 / 0.12);
+  --shadow-lift: 0 2px 4px rgb(21 19 43 / 0.05), 0 18px 40px -16px rgb(91 33 182 / 0.28);
+  --halo-1: rgb(167 139 250 / 0.35);
+  --halo-2: rgb(34 211 238 / 0.28);
+  --halo-3: rgb(244 114 182 / 0.18);
+  color-scheme: light;
+}
+.dark {
+  --bg: #07070e;
+  --fg: #ecebf8;
+  --muted: #9a95ba;
+  --card: rgb(255 255 255 / 0.045);
+  --card-strong: #12121d;
+  --soft: rgb(255 255 255 / 0.06);
+  --line: rgb(255 255 255 / 0.09);
+  --a1: #a78bfa;
+  --a2: #22d3ee;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  --exam: #fb7185;
+  --shadow: 0 0 0 1px rgb(255 255 255 / 0.02);
+  --shadow-lift: 0 20px 50px -20px rgb(139 92 246 / 0.45);
+  --halo-1: rgb(124 58 237 / 0.32);
+  --halo-2: rgb(8 145 178 / 0.26);
+  --halo-3: rgb(219 39 119 / 0.14);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-card-strong: var(--card-strong);
+  --color-soft: var(--soft);
+  --color-line: var(--line);
+  --color-a1: var(--a1);
+  --color-a2: var(--a2);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --color-exam: var(--exam);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --shadow-soft: var(--shadow);
+  --shadow-lift: var(--shadow-lift);
+}
+
+/* ---------- Base ---------- */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "cv11", "ss01";
+  overflow-x: hidden;
+}
+::selection {
+  background: color-mix(in oklab, var(--a1) 30%, transparent);
+}
+:focus-visible {
+  outline: 2px solid var(--a1);
+  outline-offset: 2px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-card shadow-soft;
+  }
+  .dark .card {
+    @apply backdrop-blur-xl;
+  }
+  .card-pad {
+    @apply p-4 sm:p-5;
+  }
+  .text-gradient {
+    background-image: linear-gradient(100deg, var(--a1), var(--a2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .bg-gradient {
+    background-image: linear-gradient(120deg, var(--a1), var(--a2));
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-card px-3.5 py-2 text-sm font-medium transition-colors hover:bg-soft disabled:opacity-60 cursor-pointer;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white shadow-lift transition-[filter,transform] hover:brightness-110 active:scale-[0.98] disabled:opacity-60 cursor-pointer;
+    background-image: linear-gradient(120deg, #7c3aed, #0891b2);
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-soft px-2 py-0.5 text-[11.5px] font-semibold text-muted;
+  }
+  .chip-ok {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11.5px] font-semibold;
+    color: var(--ok);
+    background: color-mix(in oklab, var(--ok) 14%, transparent);
+  }
+  .chip-warn {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11.5px] font-semibold;
+    color: var(--warn);
+    background: color-mix(in oklab, var(--warn) 15%, transparent);
+  }
+  .chip-bad {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11.5px] font-semibold;
+    color: var(--bad);
+    background: color-mix(in oklab, var(--bad) 14%, transparent);
+  }
+  .chip-exam {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11.5px] font-semibold;
+    color: var(--exam);
+    background: color-mix(in oklab, var(--exam) 15%, transparent);
+  }
+  .chip-accent {
+    @apply inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[11.5px] font-semibold;
+    color: var(--a1);
+    background: color-mix(in oklab, var(--a1) 14%, transparent);
+  }
+  .code {
+    @apply font-mono text-[11.5px] text-muted;
+  }
+  .h1 {
+    @apply text-2xl font-semibold tracking-tight sm:text-3xl;
+  }
+  .sub {
+    @apply mt-1 text-sm text-muted;
+  }
+}
+
+/* ---------- Couleur stable par cours (teinte --h) ---------- */
+.cc-soft {
+  background: hsl(var(--h) 90% 96%);
+  color: hsl(var(--h) 65% 27%);
+  border-color: hsl(var(--h) 70% 86%);
+}
+.cc-solid {
+  background: hsl(var(--h) 72% 52%);
+}
+.cc-text {
+  color: hsl(var(--h) 65% 38%);
+}
+.cc-edge {
+  box-shadow: inset 3px 0 0 hsl(var(--h) 72% 52%);
+}
+.dark .cc-soft {
+  background: hsl(var(--h) 70% 55% / 0.15);
+  color: hsl(var(--h) 90% 82%);
+  border-color: hsl(var(--h) 70% 65% / 0.28);
+}
+.dark .cc-solid {
+  background: hsl(var(--h) 80% 64%);
+}
+.dark .cc-text {
+  color: hsl(var(--h) 85% 74%);
+}
+.dark .cc-edge {
+  box-shadow: inset 3px 0 0 hsl(var(--h) 80% 64%);
+}
+
+/* Évaluations : halo dédié */
+.exam-glow {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--exam) 55%, transparent),
+    0 0 18px -2px color-mix(in oklab, var(--exam) 55%, transparent);
+}
+
+/* ---------- Fond : halos dégradés qui dérivent ---------- */
+.halo {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(80px);
+  will-change: transform;
+}
+@keyframes drift-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(12vw, 8vh, 0) scale(1.15); }
+}
+@keyframes drift-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.05); }
+  50% { transform: translate3d(-10vw, 12vh, 0) scale(0.9); }
+}
+@keyframes drift-3 {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(6vw, -10vh, 0); }
+}
+.halo-1 { animation: drift-1 38s ease-in-out infinite; background: var(--halo-1); }
+.halo-2 { animation: drift-2 46s ease-in-out infinite; background: var(--halo-2); }
+.halo-3 { animation: drift-3 54s ease-in-out infinite; background: var(--halo-3); }
+
+@keyframes now-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+}
+.now-dot { animation: now-pulse 2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .halo, .now-dot { animation: none !important; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Fiches de révision (HTML de data/fiches.ts) ---------- */
+.fiche-prose {
+  line-height: 1.65;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.fiche-prose h4 {
+  margin: 1.6rem 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+.fiche-prose h4:first-child { margin-top: 0.25rem; }
+.fiche-prose h4::before {
+  content: "";
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  margin-right: 0.5rem;
+  border-radius: 9999px;
+  background-image: linear-gradient(120deg, var(--a1), var(--a2));
+  vertical-align: 0.08em;
+}
+.fiche-prose p { margin: 0.5rem 0; }
+.fiche-prose ul, .fiche-prose ol { margin: 0.4rem 0; padding-left: 1.25rem; }
+.fiche-prose ul { list-style: disc; }
+.fiche-prose ol { list-style: decimal; }
+.fiche-prose li { margin: 0.2rem 0; }
+.fiche-prose li::marker { color: var(--a1); }
+.fiche-prose a { color: var(--a1); text-decoration: underline; text-underline-offset: 3px; }
+.fiche-prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0.75rem 0;
+  font-size: 13.5px;
+}
+.fiche-prose th, .fiche-prose td {
+  border: 1px solid var(--line);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  min-width: 9rem;
+}
+.fiche-prose th { background: var(--soft); font-weight: 600; }
+.fiche-prose .box {
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.9rem;
+  font-size: 14px;
+  border: 1px solid color-mix(in oklab, var(--a1) 25%, transparent);
+  background: color-mix(in oklab, var(--a1) 8%, transparent);
+}
+.fiche-prose .box.w {
+  border-color: color-mix(in oklab, var(--warn) 30%, transparent);
+  background: color-mix(in oklab, var(--warn) 9%, transparent);
+}
+.fiche-prose .box.x {
+  border-color: color-mix(in oklab, var(--exam) 30%, transparent);
+  background: color-mix(in oklab, var(--exam) 8%, transparent);
+}
+.fiche-prose .f, .fiche-prose code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.4rem;
+  background: var(--soft);
+}
+.fiche-prose .muted { color: var(--muted); }
+.fiche-prose .small { font-size: 13px; }
+.fiche-prose details {
+  margin: 0.6rem 0;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+}
+.fiche-prose summary { cursor: pointer; font-weight: 600; }
+
+/* ---------- Pastilles du calendrier (barre fine sur mobile, étiquette dès 640 px) ---------- */
+.pill {
+  display: block;
+  min-width: 0;
+  height: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-radius: 9999px;
+}
+.pill-course { background: hsl(var(--h) 72% 52%); }
+.dark .pill-course { background: hsl(var(--h) 80% 64%); }
+.pill-neutral { background: color-mix(in oklab, var(--muted) 40%, transparent); }
+.pill-exam { background: var(--exam); }
+.pill-task { border: 1px dashed color-mix(in oklab, var(--a1) 65%, transparent); }
+@media (min-width: 640px) {
+  .pill {
+    height: auto;
+    padding: 1px 6px;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    font-size: 11px;
+    line-height: 16px;
+  }
+  .pill-course {
+    background: hsl(var(--h) 90% 96%);
+    color: hsl(var(--h) 65% 27%);
+    border-color: hsl(var(--h) 70% 86%);
+  }
+  .dark .pill-course {
+    background: hsl(var(--h) 70% 55% / 0.15);
+    color: hsl(var(--h) 90% 82%);
+    border-color: hsl(var(--h) 70% 65% / 0.28);
+  }
+  .pill-neutral { background: var(--soft); border-color: var(--line); color: var(--muted); }
+  .pill-exam {
+    background: color-mix(in oklab, var(--exam) 15%, transparent);
+    color: var(--exam);
+    border-color: color-mix(in oklab, var(--exam) 45%, transparent);
+    font-weight: 600;
+  }
+  .pill-task { border-style: dashed; border-color: color-mix(in oklab, var(--a1) 55%, transparent); color: var(--a1); }
+}
