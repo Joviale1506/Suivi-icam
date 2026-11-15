@@ -46,7 +46,8 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
     const next = opts[(i + 1) % opts.length]!;
     const Icon = (opts[i] ?? opts[2]).icon;
     return (
-      <button className="btn h-9 w-9 p-0" onClick={() => setTheme(next.v)} aria-label={`Thème : passer en ${next.label.toLowerCase()}`}>
+      // Désactivé tant que le thème réel n'est pas connu (avant l'hydratation, un clic partirait du mauvais état)
+      <button className="btn h-9 w-9 p-0" disabled={!mounted} onClick={() => setTheme(next.v)} aria-label={`Thème : passer en ${next.label.toLowerCase()}`}>
         <motion.span key={cur} initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }}>
           <Icon className="h-4 w-4" />
         </motion.span>

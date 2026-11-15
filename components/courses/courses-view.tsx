@@ -20,7 +20,7 @@ export function CoursesIndex() {
       {courseGroups().map(([g, codes]) => (
         <section key={g}>
           <h2 className="mb-2 text-xs font-semibold tracking-wider text-muted uppercase">{g}</h2>
-          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {codes.map((k) => {
               const p = courseScore(ref, k, progress);
               const n = courseAA(ref, k).length;
@@ -108,7 +108,7 @@ export function CourseDetail({ code }: { code: string }) {
         )}
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="card-pad">
           <SectionTitle action={<CalendarClock className="h-4 w-4 text-muted" />}>Séances à venir</SectionTitle>
           {up.length ? (

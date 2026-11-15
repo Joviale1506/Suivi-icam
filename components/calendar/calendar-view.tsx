@@ -64,7 +64,7 @@ export function CalendarView() {
 
   const move = (dir: -1 | 1) => {
     if (view === "month") setCursor((c) => addMonths(monthStart(c), dir));
-    else if (view === "week") setCursor((c) => addDays(c, 7 * dir));
+    else if (view === "week") setCursor((c) => addDays(weekStart(c), 7 * dir)); // lundi : 1re colonne affichée sur mobile
     else setCursor((c) => addDays(weekStart(c), LIST_DAYS * dir));
   };
 

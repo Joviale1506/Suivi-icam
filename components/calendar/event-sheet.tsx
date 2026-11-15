@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion, useDragControls } from "motion/react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowRight, BookOpen, Clock, FileText, MapPin, Tag, X } from "lucide-react";
 import type { PlanEvent } from "@/lib/types";
 import { daysUntil, fmtDayLong, fmtTime, relativeDays } from "@/lib/dates";
@@ -132,13 +133,17 @@ function SheetBody({ e, onClose, onHandle }: { e: PlanEvent; onClose: () => void
 export function EventSheet({ event, onClose }: { event: PlanEvent | null; onClose: () => void }) {
   const desktop = useIsDesktop();
   const drag = useDragControls();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (!event) return;
     const k = (x: KeyboardEvent) => x.key === "Escape" && onClose();
     window.addEventListener("keydown", k);
     return () => window.removeEventListener("keydown", k);
   }, [event, onClose]);
-  return (
+  // Portail vers <body> : la transition de page (transform + filter) piégerait sinon les éléments « fixed »
+  if (!mounted) return null;
+  return createPortal(
     <AnimatePresence>
       {event && (
         <>
@@ -173,6 +178,7 @@ export function EventSheet({ event, onClose }: { event: PlanEvent | null; onClos
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

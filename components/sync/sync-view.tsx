@@ -103,7 +103,7 @@ export function SyncView() {
         <h1 className="h1">Synchronisation</h1>
         <p className="sub">D&apos;où viennent tes données et comment les mettre à jour.</p>
       </header>
-      <Stagger className="grid gap-4 lg:grid-cols-2">
+      <Stagger className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <StaggerItem>
           <Card className="card-pad h-full">
             <h2 className="flex items-center gap-2 font-semibold">

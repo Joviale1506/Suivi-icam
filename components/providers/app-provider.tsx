@@ -38,6 +38,24 @@ export function useApp(): AppContextValue {
   return v;
 }
 
+/** Présent tant qu'une modification locale n'a pas été confirmée par le serveur */
+const DIRTY_KEY = "suivi-icam:dirty";
+function setDirty(on: boolean) {
+  try {
+    if (on) localStorage.setItem(DIRTY_KEY, "1");
+    else localStorage.removeItem(DIRTY_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+function isDirty() {
+  try {
+    return localStorage.getItem(DIRTY_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function readLocal(): ProgressState | null {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
@@ -93,7 +111,9 @@ export function AppProvider({ data, serverNow, children }: { data: AppData; serv
           window.location.href = "/login";
           return;
         }
-        setSaveState(r.ok ? "saved" : "error");
+        // Rien de plus récent en attente : le serveur est à jour
+        if (r.ok && !pending.current) setDirty(false);
+        setSaveState(r.ok ? (pending.current ? "saving" : "saved") : "error");
       } catch {
         setSaveState("error");
       }
@@ -105,6 +125,7 @@ export function AppProvider({ data, serverNow, children }: { data: AppData; serv
     (next: ProgressState, delay = 700) => {
       writeLocal(next);
       if (!status.store) return;
+      setDirty(true);
       pending.current = next;
       setSaveState("saving");
       if (timer.current) clearTimeout(timer.current);
@@ -140,12 +161,15 @@ export function AppProvider({ data, serverNow, children }: { data: AppData; serv
     return () => window.removeEventListener("pagehide", flush);
   }, [pushToServer]);
 
-  // Premier chargement : reprise de la progression locale (v1 ou hors ligne)
+  // Premier chargement : reprise de la progression locale (v1, hors ligne, ou envoi interrompu par un rechargement)
   useEffect(() => {
     const local = readLocal();
     const server = data.progress;
     if (status.store) {
-      if (server && hasProgress(server)) writeLocal(server);
+      if (local && isDirty()) {
+        setProgress(local);
+        void pushToServer(local);
+      } else if (server && hasProgress(server)) writeLocal(server);
       else if (local && hasProgress(local)) {
         setProgress(local);
         void pushToServer(local);

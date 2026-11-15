@@ -44,7 +44,7 @@ export function FichesIndex({ available }: { available: string[] }) {
       {courseGroups().map(([g, codes]) => (
         <section key={g}>
           <h2 className="mb-2 text-xs font-semibold tracking-wider text-muted uppercase">{g}</h2>
-          <Stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <Stagger className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {codes.map((k) => {
               const exam = events.find((e) => e.isExam && e.end > now && e.courses.includes(k));
               return (
@@ -84,7 +84,7 @@ export function FicheView({ code, html }: { code: string; html: string | null })
   const aas = courseAA(ref, code);
   const exams = events.filter((e) => e.isExam && e.end > now && e.courses.includes(code));
   return (
-    <div className="grid gap-6 lg:grid-cols-[15rem_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
       <aside className="hidden lg:block">
         <div className="sticky top-8 max-h-[calc(100dvh-4rem)] overflow-y-auto pr-1">
           <FicheNav current={code} />
