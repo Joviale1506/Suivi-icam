@@ -1,0 +1,26 @@
+{
+  "outputDirectory": "public",
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 20
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "same-origin"
+        }
+      ]
+    }
+  ],
+  "regions": [
+    "cdg1"
+  ]
+}

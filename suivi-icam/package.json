@@ -1,0 +1,9 @@
+{
+  "name": "suivi-icam",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Mon Suivi ICAM – compétences PITCH, planning HyperPlanning et fiches de révision",
+  "engines": { "node": ">=18" },
+  "scripts": { "dev": "node scripts/dev-server.js", "test": "node scripts/test.js" }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon Suivi ICAM</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f6f8b'/%3E%3Cpath d='M12 26 32 16l20 10-20 10z' fill='white'/%3E%3Cpath d='M20 31v9c0 3 6 7 12 7s12-4 12-7v-9l-12 6z' fill='white' opacity='.85'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="hrow">
+      <h1>Mon Suivi ICAM <small id="progLabel">CP_FISE</small></h1>
+      <span class="sync" id="sync">Chargement…</span>
+    </div>
+    <nav id="nav">
+      <button data-v="dash" class="on">Tableau de bord</button>
+      <button data-v="comp">Compétences &amp; AA</button>
+      <button data-v="cours">Par cours</button>
+      <button data-v="plan">Planning &amp; révisions</button>
+      <button data-v="fiches">Fiches</button>
+      <button data-v="sync">Synchro</button>
+    </nav>
+  </div>
+</header>
+<main id="view"><p class="muted">Chargement de tes données…</p></main>
+
+<div id="login" class="overlay" hidden>
+  <form class="card" id="loginForm" style="max-width:360px;width:100%">
+    <h3>Mon Suivi ICAM</h3>
+    <p class="small muted">Entre le mot de passe défini dans Vercel (variable <span class="f">APP_PASSWORD</span>).</p>
+    <input type="password" id="pwd" autocomplete="current-password" placeholder="Mot de passe" required>
+    <div id="loginErr" class="small" style="color:var(--bad);min-height:20px;margin-top:6px"></div>
+    <button class="btn pri" style="width:100%;margin-top:6px">Se connecter</button>
+  </form>
+</div>
+
+<script src="/fiches.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
