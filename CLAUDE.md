@@ -50,12 +50,28 @@ public/pitch-sync.js    script du favori PITCH (exécuté sur pitch-icam.rima1.f
 2. `<AppProvider>` (client) normalise le référentiel, enrichit les créneaux (`mapEvents`), calcule les tâches (`buildTasks`) et gère la progression.
 3. Chaque modification : copie immédiate dans `localStorage["suivi-icam"]` + `PUT /api/state` différé (700 ms, 900 ms pour les notes). Le drapeau `suivi-icam:dirty` reste posé tant que le serveur n'a pas confirmé ; au chargement, une copie locale « dirty » l'emporte et est renvoyée (cas d'un rechargement avant l'envoi).
 
+## Données officielles (PITCH) — règle d'or
+- Les pourcentages et statuts affichés viennent **uniquement** de PITCH (`aaOfficial`, `compOfficial`, `critState`… dans `lib/progress.ts`). `null` = pas de donnée → afficher « — », jamais 0 %.
+- États : `validated` (validé) · `progress` (évalué, en cours) · `failed` (à rattraper) · `pending` (non évalué). Un critère est validé dès qu'une de ses itérations l'est.
+- `interpretStatus()` (lib/referential.ts) traduit le statut brut PITCH (`CourseStatus`). **Provisoire** : les valeurs réelles sont à confirmer avec le favori « Diagnostic PITCH » (`/pitch-sync.js?diag=1`, télécharge les réponses brutes en local, n'envoie rien). Une valeur inconnue donne « évalué », jamais « validé ».
+- L'auto-évaluation n'existe plus que sous la forme « je me sens prête » (`progress.c[id] === 2`), affichée à part, jamais comptée.
+- Lien évaluation → créneaux : `lib/activities.ts` (cours + type compatible avec la modalité), corrections manuelles dans `config/activity-map.ts`.
+- Academ Compass : **aucun appel, aucun connecteur** tant que l'école n'a pas donné son accord.
+
+## Design system « Carnet »
+- Papier `--bg` (clair) / encre (sombre), un seul accent `--accent` (cobalt), états `--ok` / `--warn` / `--none`, `--bad` réservé aux retards et erreurs. Jetons dans `app/globals.css`.
+- Typo : `font-serif` Newsreader (titres `.t-page`, chiffre clé `.t-display`), Geist (interface), Geist Mono (codes `.t-code`), `.num` pour les chiffres tabulaires.
+- Structure : `<Section>` (étiquette + filet), `.row` / `.row-link` (lignes de 44 px), `.panel` rarement. Pas de cartes, d'ombres, de dégradés, de verre ni d'emoji.
+- Mouvement : 150–200 ms, `ease [0.2,0.8,0.2,1]`, fondu de page sans transform.
+- Recherche ⌘K / `/` : `components/shell/command-palette.tsx` + `lib/search.ts` (insensible aux accents).
+- PWA : `public/manifest.webmanifest` (installable).
+
 ## Conventions
 - Interface et commentaires en français. Code en anglais.
 - La logique métier va dans `lib/` (pure, testable avec `node --test`) ; les imports relatifs internes à `lib/` gardent l'extension `.ts`.
 - Tout code qui lit un secret ou Redis va dans `lib/server/` avec `import "server-only"`.
-- Couleur d'un cours : `hueStyle(code)` + classes `cc-soft`, `cc-solid`, `cc-text`, `cc-edge`, `pill-*` (globals.css). Ne pas utiliser de variante Tailwind (`sm:`, `dark:`) sur ces classes maison : leurs règles responsive / sombre sont déjà dans globals.css.
-- Animations via `motion` ; `MotionConfig reducedMotion="user"` + règles CSS `prefers-reduced-motion` pour les animations CSS (halos, point « maintenant »).
+- Couleur d'un cours (discrète : repère de 2 px ou pastille) : `hueStyle(code)` + classes `cc-soft`, `cc-solid`, `cc-text`, `cc-edge`, `pill-*` (globals.css). Ne pas utiliser de variante Tailwind (`sm:`, `dark:`) sur ces classes maison : leurs règles responsive / sombre sont déjà dans globals.css.
+- Animations via `motion` ; `MotionConfig reducedMotion="user"` + règles CSS `prefers-reduced-motion` (point « maintenant »).
 - Grilles : toujours `grid-cols-1` (ou `minmax(0,1fr)`) sur mobile, sinon un texte tronqué élargit la colonne et crée un défilement horizontal à 375 px.
 
 ## Pièges

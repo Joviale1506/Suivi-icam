@@ -71,6 +71,15 @@ export function relativeDays(n: number): string {
   return n > 0 ? `dans ${n} j` : `il y a ${-n} j`;
 }
 
+/** « à l'instant », « il y a 12 min », « il y a 2 h », « il y a 3 j » */
+export function ago(d: Date, now: Date = new Date()): string {
+  const s = Math.max(0, (now.getTime() - d.getTime()) / 1000);
+  if (s < 90) return "à l'instant";
+  if (s < 3600) return `il y a ${Math.round(s / 60)} min`;
+  if (s < 86400) return `il y a ${Math.round(s / 3600)} h`;
+  return `il y a ${Math.round(s / 86400)} j`;
+}
+
 export function greeting(now: Date = new Date()): string {
   const h = parisTime(now).h;
   if (h < 5) return "Bonne nuit";

@@ -1,156 +1,199 @@
 "use client";
 import Link from "next/link";
 import { useMemo } from "react";
-import { motion } from "motion/react";
-import { ArrowRight, CalendarClock, CheckCircle2, ListTodo, Sparkles, Target } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { PROFILE } from "@/config/profile";
-import { addDays, dayKey, daysUntil, fmtDayLong, fmtDateTime, fmtTime, greeting } from "@/lib/dates";
-import { compAAs, compScore, courseAA, aaScore, critId, isReady, NON_COURSE_TYPES } from "@/lib/progress";
+import { addDays, dayKey, daysUntil, fmtDay, fmtDayLong, fmtTime, greeting, keyToNoon } from "@/lib/dates";
+import { aaState, allCriteria, compAAs, compOfficial, compState, critState, NON_COURSE_TYPES } from "@/lib/progress";
+import { courseHref } from "@/lib/courses";
 import { useApp } from "@/components/providers/app-provider";
-import { AnimatedNumber, Card, Empty, ProgressRing, SectionTitle, Stagger, StaggerItem, cx, hueStyle } from "@/components/ui/primitives";
+import { Freshness } from "@/components/shell/shell";
+import { Bar, CourseDot, Empty, Pct, Section, StateTag, cx } from "@/components/ui/primitives";
 import { EventRow, TaskRow } from "@/components/planning/rows";
 
-function Countdown() {
-  const { events, now, ref, progress, cname } = useApp();
+/* ---------- Information clé ---------- */
+function NextEvaluation() {
+  const { events, now, cname } = useApp();
   const next = events.find((e) => e.isExam && e.end > now);
   if (!next)
     return (
-      <Card className="card-pad flex h-full flex-col justify-center">
-        <div className="text-sm text-muted">Prochaine évaluation</div>
-        <div className="mt-2 text-lg font-semibold">Aucune évaluation planifiée 🎉</div>
-      </Card>
-    );
-  const ms = next.start.getTime() - now.getTime();
-  const started = ms <= 0;
-  const days = Math.floor(Math.max(0, ms) / 864e5);
-  const hours = Math.floor((Math.max(0, ms) % 864e5) / 36e5);
-  const aas = next.courses.flatMap((c) => courseAA(ref, c));
-  const p = aas.length ? aas.reduce((x, a) => x + aaScore(a, progress), 0) / aas.length : 0;
-  return (
-    <Card hover className="relative h-full overflow-hidden p-5 sm:p-6">
-      <div className="bg-gradient pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full opacity-25 blur-3xl" />
-      <div className="relative flex items-center gap-2 text-sm text-muted">
-        <CalendarClock className="h-4 w-4 text-exam" /> Prochaine évaluation
+      <div>
+        <p className="t-label">Prochaine évaluation</p>
+        <p className="t-display mt-3">Rien de planifié</p>
       </div>
-      <div className="relative mt-3 flex items-end gap-4">
-        {started ? (
-          <span className="text-gradient text-5xl font-bold tracking-tight">En cours</span>
-        ) : (
+    );
+  const d = daysUntil(next.start, now);
+  const started = next.start <= now;
+  return (
+    <div>
+      <p className="t-label">Prochaine évaluation</p>
+      <p className="t-display mt-3">
+        {started ? "En cours" : d === 0 ? "Aujourd'hui" : d === 1 ? "Demain" : (
           <>
-            <span className="flex items-baseline gap-1">
-              <AnimatedNumber value={days} className="text-gradient text-6xl font-bold tracking-tighter sm:text-7xl" />
-              <span className="text-xl font-semibold text-muted">j</span>
-            </span>
-            <span className="mb-2 flex items-baseline gap-1">
-              <AnimatedNumber value={hours} className="text-3xl font-semibold tracking-tight" />
-              <span className="text-sm text-muted">h</span>
-            </span>
+            dans {d}&nbsp;<span className="text-muted italic">jours</span>
           </>
         )}
-      </div>
-      <div className="relative mt-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-lg font-semibold leading-tight">{next.name}</span>
-          <span className="chip-exam">{next.type}</span>
-        </div>
-        <div className="mt-1 text-sm text-muted">
-          {fmtDateTime(next.start)}
+      </p>
+      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[14px]">
+        <span className="font-medium">{next.name}</span>
+        <span className="chip border-accent text-accent">{next.type}</span>
+        <span className="num text-muted">
+          {fmtDay.format(next.start)} · {fmtTime.format(next.start)}
           {next.location && ` · ${next.location}`}
-        </div>
-        {aas.length > 0 && (
-          <div className="mt-4 flex items-center gap-3 text-sm">
-            <div className="h-2 flex-1 rounded-full bg-soft">
-              <motion.div className="bg-gradient h-full rounded-full" initial={{ width: 0 }} animate={{ width: `${p * 100}%` }} transition={{ duration: 1 }} />
-            </div>
-            <span className="tabular-nums text-muted">
-              {Math.round(p * 100)} % prêt · {cname(next.courses[0]!)}
-            </span>
-          </div>
+        </span>
+        {next.courses[0] && (
+          <Link href={courseHref(next.courses[0], "fiches")} className="inline-flex items-center gap-1 text-accent hover:underline">
+            Fiche {cname(next.courses[0])} <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         )}
       </div>
-    </Card>
+    </div>
   );
 }
 
-function Stats() {
-  const { ref, progress, tasks, now } = useApp();
-  const inP = ref.aaList.filter((a) => !a.off);
-  const ready = inP.filter((a) => isReady(a, progress)).length;
-  const allCrit = inP.reduce((x, a) => x + a.crit.length, 0);
-  const okCrit = inP.reduce((x, a) => x + a.crit.filter((_, i) => progress.c[critId(a, i)] === 2).length, 0);
-  const comps = ref.competences.filter((c) => !c.missing);
-  const compsOk = comps.filter((c) => compScore(c, progress) * 100 >= c.min).length;
-  const weekTasks = tasks.filter((t) => !progress.t[t.id] && daysUntil(t.date, now) <= 7 && daysUntil(t.date, now) >= 0).length;
-  const items = [
-    { icon: Target, v: ready, of: inP.length, l: "AA prêts ou validés" },
-    { icon: CheckCircle2, v: okCrit, of: allCrit, l: "critères maîtrisés" },
-    { icon: Sparkles, v: compsOk, of: comps.length, l: "compétences ≥ seuil" },
-    { icon: ListTodo, v: weekTasks, l: "tâches sous 7 jours" },
-  ];
+/* ---------- Frise des évaluations (6 semaines) ---------- */
+function Timeline() {
+  const { events, now } = useApp();
+  const DAYS = 42;
+  const today = dayKey(now);
+  const exams = events.filter((e) => e.isExam && e.end > now && daysUntil(e.start, now) < DAYS);
+  const weeks = Array.from({ length: DAYS / 7 + 1 }, (_, i) => i * 7);
   return (
-    <Stagger className="grid h-full grid-cols-2 gap-3">
-      {items.map((s) => (
-        <StaggerItem key={s.l}>
-          <Card hover className="h-full p-4">
-            <s.icon className="h-4 w-4 text-a1" />
-            <div className="mt-2 text-3xl font-bold tracking-tight">
-              <AnimatedNumber value={s.v} />
-              {s.of != null && <span className="text-base font-medium text-muted">/{s.of}</span>}
+    <Section label="Évaluations · 6 semaines" action={<Link href="/planning" className="text-muted hover:text-fg">Planning</Link>}>
+      <div className="relative mt-5 mb-2 h-10" aria-hidden>
+        <div className="absolute top-3 right-0 left-0 h-px bg-line-strong" />
+        {weeks.map((w, i) => (
+          <span key={w} className="absolute top-1.5 h-3 w-px bg-line-strong" style={{ left: `${(w / DAYS) * 100}%` }}>
+            {/* Extrémités alignées sur les bords : aucune étiquette ne dépasse à 375 px */}
+            <span
+              className={cx(
+                "num absolute top-4 text-[10.5px] whitespace-nowrap text-faint",
+                i === 0 ? "left-0" : i === weeks.length - 1 ? "right-0" : "-translate-x-1/2",
+              )}
+            >
+              {w === 0 ? "auj." : fmtDay.format(keyToNoon(addDays(today, w))).replace(/^\S+\s/, "")}
+            </span>
+          </span>
+        ))}
+        {exams.map((e) => (
+          <span
+            key={e.id}
+            className="absolute top-[7px] h-[11px] w-[11px] -translate-x-1/2 rounded-full border-2 border-bg bg-accent"
+            style={{ left: `${(Math.max(0, daysUntil(e.start, now)) / DAYS) * 100}%` }}
+            title={`${e.name} · ${fmtDay.format(e.start)}`}
+          />
+        ))}
+      </div>
+      {exams.length ? (
+        <div>
+          {exams.map((e) => (
+            <div key={e.id} className="row">
+              <span className="num w-14 shrink-0 text-[13px] text-accent">J-{Math.max(0, daysUntil(e.start, now))}</span>
+              <CourseDot code={e.key} />
+              <span className="min-w-0 flex-1 truncate text-[13.5px]">{e.name}</span>
+              <span className="num hidden text-[12.5px] text-muted sm:inline">{fmtDay.format(e.start)}</span>
+              <span className="chip">{e.type}</span>
             </div>
-            <div className="text-xs text-muted">{s.l}</div>
-          </Card>
-        </StaggerItem>
-      ))}
-    </Stagger>
+          ))}
+        </div>
+      ) : (
+        <Empty>Aucune évaluation dans les 6 prochaines semaines.</Empty>
+      )}
+    </Section>
   );
 }
 
-function Today() {
+/* ---------- Vigilance / points forts (données officielles uniquement) ---------- */
+function Insights() {
+  const { ref, events, now } = useApp();
+  const crits = allCriteria(ref);
+  const failed = crits.filter((x) => x.c.status === "failed");
+  const evaluated = crits.filter((x) => x.c.status !== "pending");
+  const strongAA = ref.aaList.filter((a) => !a.off && aaState(a) === "validated");
+  const strongComp = ref.competences.filter((c) => !c.missing && compState(c) === "validated");
+  const nextExamFor = (courses: string[]) => events.find((e) => e.isExam && e.end > now && e.courses.some((c) => courses.includes(c)));
+  const soon = ref.aaList
+    .filter((a) => !a.off && aaState(a) !== "validated")
+    .map((a) => ({ a, e: nextExamFor(a.courses) }))
+    .filter((x) => x.e && daysUntil(x.e.start, now) <= 14)
+    .slice(0, 4);
+
+  return (
+    <div className="grid grid-cols-1 gap-x-10 gap-y-8 md:grid-cols-2">
+      <Section label={`Vigilance${failed.length ? ` · ${failed.length}` : ""}`}>
+        {failed.map(({ a, c, i }) => {
+          const ex = nextExamFor(c.courses);
+          return (
+            <Link key={a.code + i} href={`/competences?c=${a.comp}&aa=${encodeURIComponent(a.code)}&k=${i}`} className="row row-link items-start">
+              <StateTag state="failed" short className="mt-1.5" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13.5px] leading-snug">{c.title}</span>
+                <span className="t-code block truncate">
+                  {c.code ?? a.code} · {ex ? `prochaine itération ${fmtDay.format(ex.start)}` : "pas de nouvelle évaluation prévue"}
+                </span>
+              </span>
+            </Link>
+          );
+        })}
+        {soon.map(({ a, e }) => (
+          <Link key={a.code} href={`/competences?c=${a.comp}&aa=${encodeURIComponent(a.code)}`} className="row row-link items-start">
+            <span className="num mt-0.5 w-9 shrink-0 text-[12.5px] text-accent">J-{daysUntil(e!.start, now)}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[13.5px] leading-snug">{a.title}</span>
+              <span className="t-code block truncate">
+                {a.code} · évalué {fmtDay.format(e!.start)}
+              </span>
+            </span>
+          </Link>
+        ))}
+        {!failed.length && !soon.length && (
+          <Empty>{evaluated.length ? "Aucun critère évalué non validé." : "Aucune donnée d'évaluation officielle pour l'instant."}</Empty>
+        )}
+      </Section>
+      <Section label={`Points forts${strongAA.length ? ` · ${strongAA.length}` : ""}`}>
+        {strongComp.map((c) => (
+          <div key={c.code} className="row">
+            <span className="t-code w-9 shrink-0 text-fg">{c.code}</span>
+            <span className="min-w-0 flex-1 truncate text-[13.5px]">{c.title}</span>
+            <Pct value={compOfficial(c)} className="text-[13px] text-ok" />
+          </div>
+        ))}
+        {strongAA.slice(0, 6).map((a) => (
+          <div key={a.code} className="row">
+            <StateTag state="validated" short />
+            <span className="min-w-0 flex-1 truncate text-[13.5px]">{a.title}</span>
+            <span className="t-code hidden sm:inline">{a.comp}</span>
+          </div>
+        ))}
+        {!strongAA.length && !strongComp.length && (
+          <Empty>{evaluated.length ? "Pas encore d'AA démontré." : "Les AA démontrés apparaîtront ici après une évaluation."}</Empty>
+        )}
+      </Section>
+    </div>
+  );
+}
+
+/* ---------- Programme du jour ---------- */
+function Agenda() {
   const { events, now } = useApp();
   const today = dayKey(now);
   const real = events.filter((e) => !NON_COURSE_TYPES.has(e.type));
   const todays = real.filter((e) => dayKey(e.start) === today && e.end > now);
-  const nextDayEvent = real.find((e) => dayKey(e.start) > today);
-  const nextDay = nextDayEvent ? dayKey(nextDayEvent.start) : null;
-  const upcoming = nextDay ? real.filter((e) => dayKey(e.start) === nextDay) : [];
-  const title = todays.length ? "Aujourd'hui" : nextDay === addDays(today, 1) ? "Demain" : nextDay ? fmtDayLong.format(nextDayEvent!.start) : "À venir";
-  const list = todays.length ? todays : upcoming;
+  const nextEv = real.find((e) => dayKey(e.start) > today);
+  const nextDay = nextEv ? dayKey(nextEv.start) : null;
+  const list = todays.length ? todays : nextDay ? real.filter((e) => dayKey(e.start) === nextDay) : [];
+  const label = todays.length ? "Aujourd'hui" : nextDay === addDays(today, 1) ? "Demain" : nextEv ? fmtDayLong.format(nextEv.start) : "À venir";
   return (
-    <Card className="card-pad h-full">
-      <SectionTitle
-        action={
-          <Link href="/planning" className="inline-flex items-center gap-1 text-xs font-medium text-a1 hover:underline">
-            Planning <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        }
-      >
-        <span className="first-letter:uppercase">{title}</span>
-      </SectionTitle>
-      {list.length ? (
-        <Stagger className="space-y-2">
-          {list.map((e) => (
-            <StaggerItem key={e.id}>
-              <EventRow e={e} showDate={false} />
-            </StaggerItem>
-          ))}
-        </Stagger>
-      ) : (
-        <Empty>Plus de cours prévu.</Empty>
-      )}
-      {todays.length > 0 && nextDayEvent && (
-        <p className="mt-3 text-xs text-muted">
-          Ensuite : {nextDayEvent.name}, {fmtDayLong.format(nextDayEvent.start)} à {fmtTime.format(nextDayEvent.start)}
-        </p>
-      )}
-    </Card>
+    <Section label={label}>
+      {list.length ? list.map((e) => <EventRow key={e.id} e={e} showDate={false} />) : <Empty>Plus de cours prévu.</Empty>}
+    </Section>
   );
 }
 
 function WeekTasks() {
   const { tasks, progress, now, events } = useApp();
   const examEnd = useMemo(() => new Map(events.map((e) => [e.id, e.end.getTime()])), [events]);
-  // Comme la v1 : tâches des 7 prochains jours (et en retard) dont l'évaluation n'est pas passée.
-  // Les tâches faites restent visibles (en bas) tant que leur date n'est pas passée.
+  // Comme la v1 : tâches des 7 prochains jours (et en retard) dont l'évaluation n'est pas passée ; les faites restent visibles en bas.
   const list = tasks
     .filter((t) => {
       const d = daysUntil(t.date, now);
@@ -160,127 +203,76 @@ function WeekTasks() {
     .slice(0, 8);
   const open = list.filter((t) => !progress.t[t.id]).length;
   return (
-    <Card className="card-pad h-full">
-      <SectionTitle action={<span className="chip-accent">{open} à faire</span>}>Tâches de la semaine</SectionTitle>
-      {list.length ? (
-        <Stagger className="space-y-2">
-          {list.map((t) => (
-            <StaggerItem key={t.id}>
-              <TaskRow t={t} />
-            </StaggerItem>
-          ))}
-        </Stagger>
-      ) : (
-        <Empty>Rien d&apos;urgent. Avance sur un AA « à travailler ».</Empty>
-      )}
-    </Card>
+    <Section label={`Révisions · 7 jours${open ? ` · ${open} à faire` : ""}`}>
+      {list.length ? list.map((t) => <TaskRow key={t.id} t={t} />) : <Empty>Rien d&apos;urgent.</Empty>}
+    </Section>
   );
 }
 
-function CompetenceRings() {
-  const { ref, progress } = useApp();
+/* ---------- Carte des critères par compétence ---------- */
+function CompetenceMap() {
+  const { ref } = useApp();
   const comps = ref.competences.filter((c) => !c.missing);
   return (
-    <Card className="card-pad">
-      <SectionTitle action={<span className="text-xs text-muted">Seuil PITCH : {PROFILE.defaultThreshold} %</span>}>Progression par compétence</SectionTitle>
-      <Stagger className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+    <Section
+      label="Critères par compétence"
+      action={
+        <span className="hidden items-center gap-3 sm:flex">
+          <StateTag state="validated" />
+          <StateTag state="failed" />
+          <StateTag state="pending" />
+        </span>
+      }
+    >
+      <div className="mt-1">
         {comps.map((c) => {
-          const p = compScore(c, progress);
-          const as = compAAs(c);
+          const crits = compAAs(c).flatMap((a) => a.crit);
+          const p = compOfficial(c);
           return (
-            <StaggerItem key={c.code}>
-              <Link href={`/competences?open=${c.code}`} className="group flex flex-col items-center rounded-2xl p-2 transition-colors hover:bg-soft" title={c.title}>
-                <ProgressRing
-                  value={p}
-                  threshold={c.min / 100}
-                  gradientId={`ring-${c.code}`}
-                  size={76}
-                  label={
-                    <span className="text-sm font-bold">
-                      <AnimatedNumber value={Math.round(p * 100)} suffix="%" />
-                    </span>
-                  }
-                />
-                <span className="mt-1.5 text-xs font-semibold">{c.code}</span>
-                <span className="text-[11px] text-muted">
-                  {as.filter((a) => isReady(a, progress)).length}/{as.length} AA
-                </span>
-              </Link>
-            </StaggerItem>
+            <Link key={c.code} href={`/competences?c=${c.code}`} className="row row-link gap-4">
+              <span className="t-code w-9 shrink-0 text-fg">{c.code}</span>
+              <span className="flex min-w-0 flex-1 flex-wrap gap-[3px]" aria-label={`${crits.length} critères`}>
+                {crits.map((x, i) => (
+                  <span key={i} className={cx("h-2.5 w-2.5 rounded-[2px]", `st-${critState(x)}`)} style={{ background: critState(x) === "pending" ? "var(--line-strong)" : "var(--st)" }} />
+                ))}
+              </span>
+              <span className="w-24 shrink-0">
+                <Bar value={p} threshold={c.min / 100} state={compState(c)} />
+              </span>
+              <Pct value={p} className="w-11 shrink-0 text-right text-[12.5px]" />
+            </Link>
           );
         })}
-      </Stagger>
-      <p className="mt-3 text-xs text-muted">C02 et C12 : aucun RA rattaché dans PITCH pour le CP_FISE (voir Compétences).</p>
-    </Card>
-  );
-}
-
-function UpcomingExams() {
-  const { events, now } = useApp();
-  const exams = events.filter((e) => e.isExam && e.end > now).slice(0, 6);
-  return (
-    <Card className="card-pad h-full">
-      <SectionTitle>Évaluations à venir</SectionTitle>
-      {exams.length ? (
-        <Stagger className="space-y-2">
-          {exams.map((e) => (
-            <StaggerItem key={e.id}>
-              <EventRow e={e} />
-            </StaggerItem>
-          ))}
-        </Stagger>
-      ) : (
-        <Empty>Aucune</Empty>
-      )}
-    </Card>
+      </div>
+      <p className="mt-3 text-[12px] text-muted">
+        Progression officielle PITCH, seuil {PROFILE.defaultThreshold} % marqué. C02 et C12 n&apos;ont pas de RA dans PITCH pour le CP_FISE.
+      </p>
+    </Section>
   );
 }
 
 export function Dashboard() {
-  const { now, planning } = useApp();
+  const { now } = useApp();
   return (
-    <div className="space-y-5">
-      <header>
-        <p className="text-sm text-muted first-letter:uppercase">{fmtDayLong.format(now)}</p>
-        <h1 className="h1 mt-1">
-          {greeting(now)} <span className="text-gradient">{PROFILE.displayName}</span> 👋
-        </h1>
-        {planning.source !== "live" && (
-          <p className={cx("sub", planning.source === "snapshot" && "text-warn")}>
-            {planning.source === "cache" ? "HyperPlanning injoignable : dernière version connue." : "Planning : instantané du 15/11/2026."}
+    <div className="space-y-12">
+      <div>
+        <div className="flex items-start justify-between gap-4">
+          <p className="text-[13px] text-muted">
+            <span className="first-letter:uppercase">{fmtDayLong.format(now)}</span> · {greeting(now)} {PROFILE.displayName}
           </p>
-        )}
-      </header>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Countdown />
-        <Stats />
+          <Freshness className="text-right lg:hidden [&_a]:justify-end [&>div]:justify-end" />
+        </div>
+        <div className="mt-6">
+          <NextEvaluation />
+        </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Today />
+      <Timeline />
+      <Insights />
+      <div className="grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2">
+        <Agenda />
         <WeekTasks />
       </div>
-      <CompetenceRings />
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <UpcomingExams />
-        <NextCourses />
-      </div>
+      <CompetenceMap />
     </div>
-  );
-}
-
-function NextCourses() {
-  const { events, now } = useApp();
-  const next = events.filter((e) => e.end > now && !NON_COURSE_TYPES.has(e.type)).slice(0, 7);
-  return (
-    <Card className="card-pad h-full">
-      <SectionTitle>Prochains créneaux</SectionTitle>
-      <Stagger className="space-y-2">
-        {next.map((e) => (
-          <StaggerItem key={e.id} style={hueStyle(e.key)}>
-            <EventRow e={e} />
-          </StaggerItem>
-        ))}
-      </Stagger>
-    </Card>
   );
 }

@@ -1,5 +1,5 @@
 // Référentiel de compétences : format brut PITCH → modèle de l'application.
-import type { AA, Competence, PitchRaw, RA, Referential, CourseInfo } from "./types.ts";
+import type { AA, Competence, CourseInfo, Evaluation, PitchCourseRaw, PitchRaw, RA, Referential } from "./types.ts";
 import { COURSES } from "./courses.ts";
 import { isOffCourse, MISSING_COMPETENCES, PROFILE } from "../config/profile.ts";
 
@@ -17,6 +17,54 @@ const DEFAULTS: ReferentialOptions = {
 };
 
 const cleanCourseTitle = (t: string) => t.replace(/^I\d(\.\d)?\s*[-–]?\s*(HUM|MEO|ESE|PROJ|ICT|ERD)\s*[-–]\s*/i, "");
+
+/* ---------- Statut officiel ---------- */
+const plain = (v: unknown) =>
+  v == null
+    ? ""
+    : String(v)
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .trim()
+        .toLowerCase();
+
+/**
+ * Interprète le statut brut d'une évaluation PITCH.
+ * PROVISOIRE : les valeurs exactes de `CourseStatus` ne sont pas encore connues (instantané sans résultats).
+ * À confirmer avec le mode diagnostic du favori, puis compléter tests/logic.test.ts.
+ * Toute valeur non reconnue donne "evaluated" (affichée telle quelle), jamais un faux « validé ».
+ */
+export function interpretStatus(rawStatus: unknown, note?: unknown): Evaluation["status"] {
+  const s = plain(rawStatus);
+  if (!s) return plain(note) ? "evaluated" : "pending";
+  if (/^(non|na|nv|ko|false|0|echec|ajourne)\b|non[ -]?(acqui|valid)|insuffisant|^ko$/.test(s)) return "failed";
+  if (/^(a|v|ok|true|1)$|acqui|valid|reussi|succes|demontre/.test(s)) return "validated";
+  if (/^(aucun|none|null|-|en attente|a venir|planifie|non evalue)/.test(s)) return "pending";
+  return "evaluated";
+}
+
+function toEvaluation(y: PitchCourseRaw): Evaluation {
+  const str = (v: unknown) => (v == null || v === "" ? undefined : String(v));
+  return {
+    course: y.code,
+    courseTitle: y.title ? cleanCourseTitle(y.title) : undefined,
+    modality: str(y.eval),
+    note: str(y.note),
+    comment: str(y.comment),
+    rawStatus: str(y.status),
+    status: interpretStatus(y.status, y.note),
+    period: str(y.period),
+    group: str(y.group),
+  };
+}
+
+/** Une itération validée suffit ; sinon un échec prime sur « évalué » ; sinon non évalué */
+export function criterionStatus(evals: Evaluation[]): Evaluation["status"] {
+  if (evals.some((e) => e.status === "validated")) return "validated";
+  if (evals.some((e) => e.status === "failed")) return "failed";
+  if (evals.some((e) => e.status === "evaluated")) return "evaluated";
+  return "pending";
+}
 
 export function normalizeReferential(d: PitchRaw, options: Partial<ReferentialOptions> = {}): Referential {
   const o = { ...DEFAULTS, ...options };
@@ -38,7 +86,7 @@ export function normalizeReferential(d: PitchRaw, options: Partial<ReferentialOp
       ra: [],
     };
     for (const r of c.ra || []) {
-      const rr: RA = { code: r.code, title: r.title, comp: c.code, aa: [] };
+      const rr: RA = { code: r.code, title: r.title, comp: c.code, min: r.minPct, progress: r.progress, aa: [] };
       for (const a of r.aa || []) {
         const crit = a.crit || [];
         const courses = [...new Set(crit.flatMap((x) => (x.courses || []).map((y) => y.code)).concat(a.coursesHint || []))];
@@ -51,17 +99,27 @@ export function normalizeReferential(d: PitchRaw, options: Partial<ReferentialOp
           code: a.code,
           title: a.title,
           sem: (a.periods || []).join("/"),
+          periods: a.periods || [],
           off: courses.length > 0 && courses.every(o.isOffCourse),
           courses,
           ra: r.code,
           comp: c.code,
           progress: a.progress,
-          crit: crit.map((x) => ({
-            title: x.title,
-            courses: (x.courses || []).map((y) => y.code),
-            eval: (x.courses || [])[0]?.eval,
-            mandatory: x.mandatory,
-          })),
+          nbA: a.nbA,
+          nbNA: a.nbNA,
+          nbTotal: a.nbTotal,
+          crit: crit.map((x) => {
+            const evals = (x.courses || []).map(toEvaluation);
+            return {
+              code: x.code || undefined,
+              title: x.title,
+              courses: (x.courses || []).map((y) => y.code),
+              eval: (x.courses || [])[0]?.eval,
+              mandatory: x.mandatory,
+              evals,
+              status: criterionStatus(evals),
+            };
+          }),
         };
         rr.aa.push(item);
         aa[item.code] = item;
@@ -80,7 +138,14 @@ export function normalizeReferential(d: PitchRaw, options: Partial<ReferentialOp
     }
 
   return {
-    meta: { extractedAt: d.receivedAt || d.extractedAt, snapshot: !!d.snapshot, programTitle: d.programTitle, program: d.program },
+    meta: {
+      extractedAt: d.extractedAt,
+      receivedAt: d.receivedAt,
+      snapshot: !!d.snapshot,
+      programTitle: d.programTitle,
+      program: d.program,
+      periods: d.periods || [],
+    },
     competences,
     ra,
     aa,

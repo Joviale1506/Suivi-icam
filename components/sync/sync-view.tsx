@@ -1,17 +1,17 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, CalendarDays, Database, Download, GraduationCap, LogOut, RefreshCw, ShieldCheck, Upload } from "lucide-react";
-import { fmtDateTime, dayKey } from "@/lib/dates";
-import { isBackup, sanitizeProgress } from "@/lib/progress";
+import { Download, LogOut, RefreshCw, Upload } from "lucide-react";
+import { ago, dayKey, fmtDateTime } from "@/lib/dates";
+import { allCriteria, isBackup, sanitizeProgress } from "@/lib/progress";
 import { useApp } from "@/components/providers/app-provider";
-import { Card, Stagger, StaggerItem, cx } from "@/components/ui/primitives";
+import { PageHeader, Section, cx } from "@/components/ui/primitives";
 
-function Row({ k, v }: { k: string; v: React.ReactNode }) {
+function KV({ k, v }: { k: string; v: React.ReactNode }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-line py-2 text-sm last:border-0">
-      <span className="text-muted">{k}</span>
-      <span className="text-right font-medium">{v}</span>
+    <div className="row justify-between">
+      <span className="text-[13px] text-muted">{k}</span>
+      <span className="num text-right text-[13px]">{v}</span>
     </div>
   );
 }
@@ -33,7 +33,7 @@ export function RefreshButton({ className }: { className?: string }) {
           try {
             await refreshPlanning();
             router.refresh();
-            setMsg("✓ À jour");
+            setMsg("À jour");
           } catch (e) {
             setMsg("Échec : " + (e as Error).message);
           } finally {
@@ -41,38 +41,42 @@ export function RefreshButton({ className }: { className?: string }) {
           }
         }}
       >
-        <RefreshCw className={cx("h-4 w-4", busy && "animate-spin")} />
+        <RefreshCw className={cx("h-3.5 w-3.5", busy && "animate-spin")} />
         {busy ? "Actualisation…" : "Actualiser"}
       </button>
-      {msg && <span className={cx("text-xs", msg.startsWith("✓") ? "text-ok" : "text-bad")}>{msg}</span>}
+      {msg && <span className={cx("text-[12px]", msg === "À jour" ? "text-ok" : "text-bad")}>{msg}</span>}
     </span>
   );
 }
 
 export function planningSourceLabel(source: string, fetchedAt?: string) {
   const at = fetchedAt ? fmtDateTime(new Date(fetchedAt)) : "—";
-  if (source === "live") return `HyperPlanning en direct · lu ${at}`;
+  if (source === "live") return `HyperPlanning · lu ${at}`;
   if (source === "cache") return `Dernière version connue (${at}) · HyperPlanning injoignable`;
-  return "Instantané du 15/11/2026 (configure ICAL_URL pour la mise à jour automatique)";
+  return "Instantané du 15/11/2026 (ICAL_URL non configuré)";
 }
 
-function Bookmarklet() {
+/** Favori : React bloque les URL javascript: dans href, on la pose sur l'élément */
+function Bookmarklet({ diag = false, children }: { diag?: boolean; children: React.ReactNode }) {
   const ref = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
-    // React bloque les URL javascript: dans href : on la pose directement sur l'élément
-    const bm = `javascript:(function(){var s=document.createElement('script');s.src='${location.origin}/pitch-sync.js?'+Date.now();document.body.appendChild(s);})();`;
+    const q = diag ? "diag=1&" : "";
+    const bm = `javascript:(function(){var s=document.createElement('script');s.src='${location.origin}/pitch-sync.js?${q}'+Date.now();document.body.appendChild(s);})();`;
     ref.current?.setAttribute("href", bm);
-  }, []);
+  }, [diag]);
   return (
-    <a ref={ref} onClick={(e) => e.preventDefault()} className="btn-primary cursor-grab" draggable>
-      <Bookmark className="h-4 w-4" /> Synchroniser PITCH
+    <a ref={ref} onClick={(e) => e.preventDefault()} className={diag ? "btn cursor-grab" : "btn-accent cursor-grab"} draggable>
+      {children}
     </a>
   );
 }
 
 export function SyncView() {
-  const { planning, events, ref, status, progress, restore } = useApp();
+  const { planning, events, ref, status, progress, restore, now } = useApp();
   const [bk, setBk] = useState<{ ok: boolean; text: string } | null>(null);
+  const crits = allCriteria(ref);
+  const evaluated = crits.filter((x) => x.c.status !== "pending").length;
+  const pitchAt = ref.meta.receivedAt || ref.meta.extractedAt;
 
   const exportBackup = () => {
     const blob = new Blob([JSON.stringify(progress, null, 1)], { type: "application/json" });
@@ -87,7 +91,7 @@ export function SyncView() {
       const d: unknown = JSON.parse(await file.text());
       if (!isBackup(d)) throw new Error("fichier invalide");
       restore(sanitizeProgress(d));
-      setBk({ ok: true, text: "✓ Sauvegarde restaurée." });
+      setBk({ ok: true, text: "Sauvegarde restaurée." });
     } catch (e) {
       setBk({ ok: false, text: "Restauration impossible : " + (e as Error).message });
     }
@@ -98,116 +102,90 @@ export function SyncView() {
   };
 
   return (
-    <div className="space-y-5">
-      <header>
-        <h1 className="h1">Synchronisation</h1>
-        <p className="sub">D&apos;où viennent tes données et comment les mettre à jour.</p>
-      </header>
-      <Stagger className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <StaggerItem>
-          <Card className="card-pad h-full">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <CalendarDays className="h-4 w-4 text-a1" /> HyperPlanning
-            </h2>
-            <div className="mt-3">
-              <Row k="Source" v={planning.source === "live" ? "Lien iCal, en direct" : planning.source === "cache" ? "Dernière version connue" : "Instantané du 15/11"} />
-              <Row k="Mis à jour" v={planning.fetchedAt ? fmtDateTime(new Date(planning.fetchedAt)) : "—"} />
-              <Row k="Créneaux" v={events.length} />
-            </div>
-            {planning.warning && <div className="mt-3 rounded-xl border border-warn/30 bg-warn/10 px-3 py-2 text-xs">{planning.warning}</div>}
-            <p className="mt-3 text-xs text-muted">
-              Le serveur relit ton lien iCal (variable <code className="font-mono">ICAL_URL</code>, jamais visible dans le navigateur) au plus toutes les 15
-              minutes.
+    <div>
+      <PageHeader title="Synchro" sub="D'où viennent les données, quand elles ont été lues, et comment les mettre à jour." />
+      <div className="grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-2">
+        <Section label="PITCH · progression officielle">
+          <KV k="Référentiel" v={status.pitchOrigin === "sync" ? "Synchronisé" : "Instantané du 15/11"} />
+          <KV k="Dernière synchro" v={pitchAt ? `${ago(new Date(pitchAt), now)} · ${fmtDateTime(new Date(pitchAt))}` : "—"} />
+          <KV k="Contenu" v={`${ref.competences.filter((c) => !c.missing).length} compétences · ${Object.keys(ref.ra).length} RA · ${ref.aaList.length} AA`} />
+          <KV k="Critères évalués" v={`${evaluated} / ${crits.length}`} />
+          {status.store ? (
+            <ol className="mt-4 list-decimal space-y-3 pl-5 text-[13.5px]">
+              <li>
+                Glisse ce bouton dans ta barre de favoris :
+                <div className="mt-2">
+                  <Bookmarklet>Synchroniser PITCH</Bookmarklet>
+                </div>
+              </li>
+              <li>Ouvre PITCH (connectée) et clique sur le favori.</li>
+              <li>Recharge ce site.</li>
+            </ol>
+          ) : (
+            <p className="mt-4 border-l-2 border-warn pl-3 text-[13px]">Disponible après le déploiement sur Vercel avec le stockage Upstash.</p>
+          )}
+          <div className="mt-6 border-t border-line pt-4">
+            <p className="text-[13px] font-medium">Diagnostic</p>
+            <p className="mt-1 text-[12.5px] text-muted">
+              Télécharge sur cet ordinateur les réponses brutes de PITCH pour tous tes programmes (Bachelor compris). Rien n&apos;est envoyé au site. Sert à
+              découvrir les champs disponibles (dates, itérations, équivalences).
             </p>
-            <div className="mt-3">
-              {status.ical ? (
-                <RefreshButton />
-              ) : (
-                <div className="rounded-xl border border-warn/30 bg-warn/10 px-3 py-2 text-xs">Non configuré : ajoute ICAL_URL dans Vercel.</div>
-              )}
+            <div className="mt-2">
+              <Bookmarklet diag>Diagnostic PITCH</Bookmarklet>
             </div>
-          </Card>
-        </StaggerItem>
+          </div>
+        </Section>
 
-        <StaggerItem>
-          <Card className="card-pad h-full">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <GraduationCap className="h-4 w-4 text-a1" /> PITCH
-            </h2>
-            <div className="mt-3">
-              <Row k="Référentiel" v={status.pitchOrigin === "sync" ? "Synchronisé" : "Instantané du 15/11"} />
-              <Row k="Date" v={ref.meta.extractedAt ? fmtDateTime(new Date(ref.meta.extractedAt)) : "—"} />
-              <Row k="Contenu" v={`${ref.competences.filter((c) => !c.missing).length} compétences · ${Object.keys(ref.ra).length} RA · ${ref.aaList.length} AA`} />
-            </div>
-            <p className="mt-3 text-sm">
-              PITCH n&apos;a pas d&apos;accès public : la synchro passe par <b>ta</b> session, avec un favori.
-            </p>
-            {status.store ? (
-              <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm">
-                <li>
-                  Glisse ce bouton dans ta barre de favoris :<div className="mt-2">
-                    <Bookmarklet />
-                  </div>
-                </li>
-                <li>Ouvre PITCH (connectée) et clique sur le favori.</li>
-                <li>Recharge ce site : compétences, RA, AA, critères et progression officielle sont à jour.</li>
-              </ol>
-            ) : (
-              <div className="mt-3 rounded-xl border border-warn/30 bg-warn/10 px-3 py-2 text-xs">Disponible après le déploiement sur Vercel avec le stockage Upstash.</div>
-            )}
-          </Card>
-        </StaggerItem>
+        <Section label="HyperPlanning · emploi du temps">
+          <KV k="Source" v={planning.source === "live" ? "Lien iCal, en direct" : planning.source === "cache" ? "Dernière version connue" : "Instantané du 15/11"} />
+          <KV k="Lu" v={planning.fetchedAt ? `${ago(new Date(planning.fetchedAt), now)} · ${fmtDateTime(new Date(planning.fetchedAt))}` : "—"} />
+          <KV k="Créneaux" v={events.length} />
+          {planning.warning && <p className="mt-3 border-l-2 border-warn pl-3 text-[12.5px]">{planning.warning}</p>}
+          <p className="mt-3 text-[12.5px] text-muted">Relu au plus toutes les 15 minutes par le serveur ; le lien iCal reste secret (variable ICAL_URL).</p>
+          <div className="mt-3">
+            {status.ical ? <RefreshButton /> : <p className="border-l-2 border-warn pl-3 text-[12.5px]">Non configuré : ajoute ICAL_URL dans Vercel.</p>}
+          </div>
+        </Section>
 
-        <StaggerItem>
-          <Card className="card-pad h-full">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <Database className="h-4 w-4 text-a1" /> Ma progression
-            </h2>
-            <p className="mt-2 text-sm text-muted">
-              {status.storeKind === "redis"
-                ? "Enregistrée sur ton serveur (Upstash Redis) : la même sur ordinateur et téléphone."
-                : status.storeKind === "file"
-                  ? "Mode développement : enregistrée dans .data/store.json sur cet ordinateur."
-                  : "Enregistrée dans ce navigateur uniquement."}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <button className="btn" onClick={exportBackup}>
-                <Download className="h-4 w-4" /> Exporter une sauvegarde
-              </button>
-              <label className="btn">
-                <Upload className="h-4 w-4" /> Restaurer…
-                <input
-                  type="file"
-                  accept="application/json"
-                  hidden
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void importBackup(f);
-                    e.target.value = "";
-                  }}
-                />
-              </label>
-            </div>
-            {bk && <p className={cx("mt-2 text-sm", bk.ok ? "text-ok" : "text-bad")}>{bk.text}</p>}
-          </Card>
-        </StaggerItem>
+        <Section label="Mes données">
+          <p className="mt-3 text-[13px] text-muted">
+            {status.storeKind === "redis"
+              ? "Enregistrées sur ton serveur (Upstash Redis) : les mêmes sur ordinateur et téléphone."
+              : status.storeKind === "file"
+                ? "Mode développement : enregistrées dans .data/store.json."
+                : "Enregistrées dans ce navigateur uniquement."}{" "}
+            Tâches cochées, notes et « je me sens prête ».
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button className="btn" onClick={exportBackup}>
+              <Download className="h-3.5 w-3.5" /> Exporter
+            </button>
+            <label className="btn">
+              <Upload className="h-3.5 w-3.5" /> Restaurer…
+              <input
+                type="file"
+                accept="application/json"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void importBackup(f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
+          {bk && <p className={cx("mt-2 text-[13px]", bk.ok ? "text-ok" : "text-bad")}>{bk.text}</p>}
+        </Section>
 
-        <StaggerItem>
-          <Card className="card-pad h-full">
-            <h2 className="flex items-center gap-2 font-semibold">
-              <ShieldCheck className="h-4 w-4 text-a1" /> Session
-            </h2>
-            <p className="mt-2 text-sm text-muted">
-              {status.auth ? "Connectée à ton site (session de 180 jours sur cet appareil)." : "Accès libre (aucun APP_PASSWORD en local)."}
-            </p>
-            {status.auth && (
-              <button className="btn mt-4" onClick={logout}>
-                <LogOut className="h-4 w-4" /> Se déconnecter de cet appareil
-              </button>
-            )}
-          </Card>
-        </StaggerItem>
-      </Stagger>
+        <Section label="Session">
+          <p className="mt-3 text-[13px] text-muted">{status.auth ? "Connectée sur cet appareil (session de 180 jours)." : "Accès libre (aucun APP_PASSWORD en local)."}</p>
+          {status.auth && (
+            <button className="btn mt-4" onClick={logout}>
+              <LogOut className="h-3.5 w-3.5" /> Se déconnecter de cet appareil
+            </button>
+          )}
+        </Section>
+      </div>
     </div>
   );
 }

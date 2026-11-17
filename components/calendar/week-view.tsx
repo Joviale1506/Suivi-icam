@@ -47,26 +47,26 @@ export function WeekView({
               key={k}
               onClick={() => onSelectDay(k)}
               className={cx(
-                "relative flex cursor-pointer flex-col items-center rounded-xl py-1.5 text-xs",
-                k === cursor ? "bg-gradient text-white shadow-lift" : "bg-card text-fg ring-1 ring-line",
+                "relative flex min-h-11 cursor-pointer flex-col items-center justify-center rounded-md py-1 text-xs",
+                k === cursor ? "bg-accent text-accent-fg" : "border border-line text-fg",
               )}
             >
               <span className="opacity-75">{fmtWeekday.format(keyToNoon(k)).replace(".", "")}</span>
-              <span className={cx("text-base font-semibold tabular-nums", k === today && k !== cursor && "text-a1")}>{Number(k.slice(8))}</span>
-              {exam && <span className="absolute top-1 right-1.5 h-1.5 w-1.5 rounded-full bg-exam" />}
+              <span className={cx("text-base font-semibold tabular-nums", k === today && k !== cursor && "text-accent")}>{Number(k.slice(8))}</span>
+              {exam && <span className="absolute top-1 right-1.5 h-1.5 w-1.5 rounded-full bg-accent" />}
             </button>
           );
         })}
       </div>
 
-      <motion.div key={start} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card overflow-hidden">
+      <motion.div key={start} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="overflow-hidden rounded-lg border border-line">
         {/* En-têtes de jours */}
         <div className="hidden grid-cols-[3rem_repeat(7,minmax(0,1fr))] border-b border-line sm:grid">
           <div />
           {week.map((k) => (
             <button key={k} onClick={() => onSelectDay(k)} className="cursor-pointer py-2 text-center">
-              <div className="text-[11px] font-semibold tracking-wide text-muted uppercase">{fmtWeekday.format(keyToNoon(k))}</div>
-              <div className={cx("mx-auto mt-0.5 grid h-7 w-7 place-items-center rounded-full text-sm font-semibold tabular-nums", k === today && "bg-gradient text-white")}>
+              <div className="text-[11px] font-medium tracking-[0.08em] text-muted uppercase">{fmtWeekday.format(keyToNoon(k))}</div>
+              <div className={cx("mx-auto mt-0.5 grid h-7 w-7 place-items-center rounded-full text-sm font-semibold tabular-nums", k === today && "bg-accent text-accent-fg")}>
                 {Number(k.slice(8))}
               </div>
             </button>
@@ -84,7 +84,7 @@ export function WeekView({
                   {d?.events
                     .filter((e) => e.allDay)
                     .map((e) => (
-                      <button key={e.id} onClick={() => onOpen(e)} className="block w-full cursor-pointer truncate rounded-md bg-soft px-1.5 py-0.5 text-left text-[11px]">
+                      <button key={e.id} onClick={() => onOpen(e)} className="block w-full cursor-pointer truncate rounded-md bg-hover px-1.5 py-0.5 text-left text-[11px]">
                         {e.name}
                       </button>
                     ))}
@@ -96,7 +96,7 @@ export function WeekView({
                         type="button"
                         title={t.txt}
                         className={cx(
-                          "flex w-full cursor-pointer items-center gap-1 truncate rounded-md border border-dashed border-a1/50 px-1.5 py-0.5 text-left text-[11px] text-a1",
+                          "flex w-full cursor-pointer items-center gap-1 truncate rounded-md border border-dashed border-line-strong px-1.5 py-0.5 text-left text-[11px] text-muted",
                           progress.t[t.id] && "line-through opacity-50",
                         )}
                         onClick={() => ev && onOpen(ev)}
@@ -129,7 +129,7 @@ export function WeekView({
             const lanes = layoutLanes(timed);
             const isToday = k === today;
             return (
-              <div key={k} className={cx("relative border-l border-line", k === cursor ? "block" : "hidden sm:block", isToday && "bg-a1/[0.03]")} style={{ height: HEIGHT }}>
+              <div key={k} className={cx("relative border-l border-line", k === cursor ? "block" : "hidden sm:block", isToday && "bg-accent/[0.035]")} style={{ height: HEIGHT }}>
                 {Array.from({ length: END_H - START_H }, (_, i) => (
                   <div key={i} className="absolute inset-x-0 border-t border-line/70" style={{ top: i * HOUR_PX }} />
                 ))}
@@ -147,8 +147,8 @@ export function WeekView({
                       whileHover={{ scale: 1.02, zIndex: 5 }}
                       className={cx(
                         "absolute cursor-pointer overflow-hidden rounded-lg border px-1.5 py-1 text-left",
-                        e.key ? "cc-soft" : "border-line bg-soft",
-                        e.isExam && "exam-glow",
+                        e.key ? "cc-soft" : "border-line bg-hover",
+                        e.isExam && "exam-mark",
                       )}
                       style={{
                         ...hueStyle(e.key || null),
@@ -158,7 +158,7 @@ export function WeekView({
                         width: `calc(${100 / n}% - 4px)`,
                       }}
                     >
-                      <div className={cx("truncate text-[11.5px] font-semibold leading-tight", e.isExam && "text-exam")}>{e.name}</div>
+                      <div className={cx("truncate text-[11.5px] font-semibold leading-tight", e.isExam && "text-accent")}>{e.name}</div>
                       {h > 34 && (
                         <div className="truncate text-[10.5px] tabular-nums opacity-75">
                           {fmtTime.format(e.start)}–{fmtTime.format(e.end)}
@@ -176,8 +176,8 @@ export function WeekView({
                     transition={{ duration: 0.6 }}
                     style={{ originX: 0 }}
                   >
-                    <span className="now-dot -ml-1 h-2 w-2 rounded-full bg-a1 shadow-[0_0_8px_var(--a1)]" />
-                    <span className="h-0.5 flex-1 bg-gradient" />
+                    <span className="now-dot -ml-1 h-2 w-2 rounded-full bg-accent" />
+                    <span className="h-px flex-1 bg-accent" />
                   </motion.div>
                 )}
               </div>

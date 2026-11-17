@@ -59,7 +59,7 @@ for (const theme of ["light", "dark"] as const) {
   test(`pages en mode ${theme}, sans défilement horizontal`, async ({ page }, info) => {
     await login(page);
     await setTheme(page, theme);
-    for (const path of ["/", "/competences?open=C05", "/cours", "/cours/I4.7.MEO.02", "/fiches/I4.7.MEO.02", "/planning", "/synchro"]) {
+    for (const path of ["/", "/competences?c=C01&aa=AA-HUM-C01-CPE1-01", "/competences?c=C07", "/cours", "/cours/I4.7.MEO.02", "/fiches/I4.7.MEO.02", "/planning", "/synchro"]) {
       await page.goto(path);
       await page.waitForLoadState("networkidle");
       await page.waitForTimeout(900); // fin des animations d'entrée
@@ -89,11 +89,11 @@ test("calendrier : 3 vues, vue mémorisée, panneau latéral", async ({ page }, 
   await page.reload();
   await expect(page.getByRole("tab", { name: "Liste" })).toHaveAttribute("aria-selected", "true");
   // Ouvre un créneau de la liste
-  await page.locator("main button:has(.chip-exam), main button:has(.chip)").first().click();
+  await page.locator("main button:has(.chip)").first().click();
   const sheet = page.getByRole("dialog");
   await expect(sheet).toBeVisible();
   await expect(sheet).toBeInViewport({ ratio: 0.5 });
-  await expect(sheet).toContainText("heure de Paris");
+  await expect(sheet).toContainText("Horaire");
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${SHOTS}/${info.project.name}-cal-panneau.png` });
   await page.keyboard.press("Escape");
@@ -102,10 +102,12 @@ test("calendrier : 3 vues, vue mémorisée, panneau latéral", async ({ page }, 
 
 test("la progression réapparaît après rechargement", async ({ page }) => {
   await login(page);
-  await page.goto("/competences?open=C01");
-  const firstTri = page.getByRole("main").getByRole("radiogroup").first();
-  const target = (await firstTri.getByRole("radio", { name: "Maîtrisé" }).getAttribute("aria-checked")) === "true" ? "En cours" : "Maîtrisé";
-  await firstTri.getByRole("radio", { name: target }).click();
+  const AA = "/competences?c=C01&aa=AA-HUM-C01-CPE1-01";
+  await page.goto(AA);
+  const ready = page.getByRole("main").getByRole("checkbox", { name: /Je me sens prête/ }).first();
+  const wasReady = await ready.isChecked();
+  await ready.click();
+  await expect(ready).toBeChecked({ checked: !wasReady });
   // Tâche de révision cochée depuis le calendrier
   await page.goto("/planning");
   await page.getByRole("tab", { name: "Liste" }).click();
@@ -115,14 +117,26 @@ test("la progression réapparaît après rechargement", async ({ page }) => {
   const n0 = await doneCount();
   await box.click();
   await expect(box).toHaveAttribute("aria-checked", before === "true" ? "false" : "true");
-  // Le serveur a bien reçu la tâche (et le critère, envoyé avant)
   await expect.poll(doneCount, { timeout: 10_000 }).toBe(n0 + (before === "true" ? -1 : 1));
   await page.evaluate(() => localStorage.removeItem("suivi-icam")); // preuve que ça vient du serveur
   await page.reload();
   await page.getByRole("tab", { name: "Liste" }).click();
   await expect(page.getByRole("main").getByRole("checkbox").first()).toHaveAttribute("aria-checked", before === "true" ? "false" : "true");
-  await page.goto("/competences?open=C01");
-  await expect(page.getByRole("main").getByRole("radiogroup").first().getByRole("radio", { name: target })).toHaveAttribute("aria-checked", "true");
+  await page.goto(AA);
+  await expect(page.getByRole("main").getByRole("checkbox", { name: /Je me sens prête/ }).first()).toBeChecked({ checked: !wasReady });
+});
+
+test("recherche ⌘K insensible aux accents", async ({ page }, info) => {
+  await login(page);
+  await page.goto("/");
+  await page.keyboard.press("Control+k");
+  const box = page.getByRole("dialog", { name: "Recherche" });
+  await expect(box).toBeVisible();
+  await page.keyboard.type("gestion financiere");
+  await expect(box.getByRole("option").first()).toContainText("Gestion financière");
+  await page.screenshot({ path: `${SHOTS}/${info.project.name}-recherche.png` });
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/I4.7.MEO.02/);
 });
 
 test("bascule de thème manuelle", async ({ page, isMobile }) => {

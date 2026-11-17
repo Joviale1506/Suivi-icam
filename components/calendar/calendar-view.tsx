@@ -83,12 +83,16 @@ export function CalendarView() {
   const done = tasks.filter((t) => progress.t[t.id]).length;
 
   return (
-    <div className="space-y-4">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="h1">Planning</h1>
-          <p className="sub">
-            Heure de Paris · plan de révision J-14 / J-7 / J-3 / J-1 recalculé à chaque changement d&apos;examen · {done}/{tasks.length} tâches faites
+    <div>
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pb-6">
+        <div className="min-w-0">
+          <h1 className="t-page">Planning</h1>
+          <p className="mt-1.5 text-[13px] text-muted">
+            Heure de Paris · révisions J-14, J-7, J-3, J-1 recalculées à chaque changement d&apos;examen ·{" "}
+            <span className="num">
+              {done}/{tasks.length}
+            </span>{" "}
+            faites
           </p>
         </div>
         <Segmented
@@ -96,37 +100,26 @@ export function CalendarView() {
           value={view}
           onChange={setView}
           options={[
-            { value: "month", label: "Mois", icon: <CalendarDays className="h-4 w-4" /> },
-            { value: "week", label: "Semaine", icon: <CalendarRange className="h-4 w-4" /> },
-            { value: "list", label: "Liste", icon: <List className="h-4 w-4" /> },
+            { value: "month", label: "Mois", icon: <CalendarDays className="h-3.5 w-3.5" /> },
+            { value: "week", label: "Semaine", icon: <CalendarRange className="h-3.5 w-3.5" /> },
+            { value: "list", label: "Liste", icon: <List className="h-3.5 w-3.5" /> },
           ]}
         />
       </header>
 
-      <div className="card flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2.5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-y border-line py-3">
         <div className="flex items-center gap-1">
-          <button className="btn h-9 w-9 p-0" onClick={() => move(-1)} aria-label="Précédent">
+          <button className="btn w-9 p-0" onClick={() => move(-1)} aria-label="Précédent">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <button className="btn h-9 w-9 p-0" onClick={() => move(1)} aria-label="Suivant">
+          <button className="btn w-9 p-0" onClick={() => move(1)} aria-label="Suivant">
             <ChevronRight className="h-4 w-4" />
           </button>
-          <button className="btn h-9 px-3" onClick={() => setCursor(today)}>
+          <button className="btn" onClick={() => setCursor(today)}>
             Aujourd&apos;hui
           </button>
         </div>
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.h2
-            key={title}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-            transition={{ duration: 0.18 }}
-            className="min-w-0 flex-1 text-base font-semibold first-letter:uppercase sm:text-lg"
-          >
-            {title}
-          </motion.h2>
-        </AnimatePresence>
+        <h2 className="t-title min-w-0 flex-1 first-letter:uppercase">{title}</h2>
         <Segmented
           id="cal-filter"
           size="sm"
@@ -140,28 +133,31 @@ export function CalendarView() {
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span className={cx(planning.source === "live" ? "chip-ok" : "chip-warn", "max-w-full truncate")}>{planningSourceLabel(planning.source, planning.fetchedAt)}</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 py-3 text-[12px]">
+        <span className={cx("inline-flex min-w-0 items-center gap-1.5", planning.source === "live" ? "text-muted" : "text-warn")}>
+          <span className={cx("st-dot", planning.source === "live" ? "st-validated" : "st-failed")} />
+          <span className="truncate">{planningSourceLabel(planning.source, planning.fetchedAt)}</span>
+        </span>
         <RefreshButton />
       </div>
 
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={view} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+        <motion.div key={view} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
           {view === "month" && <MonthView cursor={cursor} today={today} days={days} selected={selectedDay} onSelectDay={setCursor} onOpen={onOpen} />}
           {view === "week" && <WeekView cursor={cursor} today={today} days={days} onSelectDay={setCursor} onOpen={onOpen} />}
           {view === "list" && <ListView days={days} today={today} onOpen={onOpen} />}
         </motion.div>
       </AnimatePresence>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-muted">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full bg-exam exam-glow" /> évaluation
+          <span className="h-2.5 w-2.5 rounded-[2px] bg-accent" /> évaluation
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full border border-dashed border-a1" /> tâche de révision
+          <span className="h-2.5 w-2.5 rounded-[2px] border border-line-strong" /> tâche de révision
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-2.5 rounded-full border border-bad bg-bad/20" /> tâche en retard
+          <span className="h-2.5 w-2.5 rounded-[2px] bg-bad" /> tâche en retard
         </span>
       </div>
 

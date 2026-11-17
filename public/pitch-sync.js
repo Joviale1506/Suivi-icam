@@ -2,11 +2,22 @@
    S'exécute sur pitch-icam.rima1.fr (via le favori), lit ton référentiel avec ta session
    et l'envoie à ton site. Rien n'est envoyé ailleurs. */
 (async function () {
-  const SITE = (document.currentScript && new URL(document.currentScript.src).origin) || window.__SUIVI_SITE__;
-  const PROGRAM = "CP_FISE";
+  const SRC = document.currentScript ? new URL(document.currentScript.src) : null;
+  const SITE = (SRC && SRC.origin) || window.__SUIVI_SITE__;
+  const PROGRAM = (SRC && SRC.searchParams.get("program")) || "CP_FISE";
+  // Mode diagnostic (?diag=1) : télécharge les réponses brutes de PITCH sur CET ordinateur, n'envoie rien au site.
+  const DIAG = !!(SRC && SRC.searchParams.get("diag") === "1");
+  const RAW = {};
 
   async function extractPitch(program) {
-    const j = (u) => fetch(u, { credentials: "include" }).then((r) => { if (!r.ok) throw new Error(u + " → " + r.status); return r.json(); });
+    const j = (u) =>
+      fetch(u, { credentials: "include" }).then((r) => {
+        if (!r.ok) throw new Error(u + " → " + r.status);
+        return r.json().then((d) => {
+          if (DIAG) RAW[u] = d;
+          return d;
+        });
+      });
     const progs = await j("/api/Program?culture=fr-fr");
     const prog = progs.find((p) => p.ProgramCode === program);
     if (!prog) throw new Error("Programme " + program + " introuvable (es-tu connectée à PITCH ?)");
@@ -47,6 +58,24 @@
   document.body.appendChild(box);
   try {
     if (!/pitch-icam\.rima1\.fr$/.test(location.hostname)) throw new Error("Ouvre d'abord PITCH (pitch-icam.rima1.fr), puis clique sur le favori.");
+    if (DIAG) {
+      // Tous les programmes visibles (CP_FISE, Bachelor…) : rien n'est envoyé, un fichier est téléchargé localement.
+      const progs = await fetch("/api/Program?culture=fr-fr", { credentials: "include" }).then((r) => r.json());
+      RAW["/api/Program?culture=fr-fr"] = progs;
+      const codes = progs.map((p) => p.ProgramCode).filter(Boolean);
+      for (let i = 0; i < codes.length; i++) {
+        say(`Diagnostic : programme ${codes[i]} (${i + 1}/${codes.length})… ne ferme pas l'onglet`);
+        try { await extractPitch(codes[i]); } catch (e) { RAW["__erreur " + codes[i]] = String(e.message || e); }
+      }
+      const blob = new Blob([JSON.stringify({ when: new Date().toISOString(), programs: codes, responses: RAW }, null, 1)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "pitch-diagnostic-" + new Date().toISOString().slice(0, 10) + ".json";
+      a.click();
+      say(`✓ Diagnostic téléchargé (${Object.keys(RAW).length} réponses, programmes : ${codes.join(", ")}). Rien n'a été envoyé au site.`);
+      setTimeout(() => box.remove(), 15000);
+      return;
+    }
     let pwd = localStorage.getItem("suivi-icam-pwd");
     if (!pwd) { pwd = prompt("Mot de passe de ton site Mon Suivi ICAM :"); if (!pwd) throw new Error("Synchronisation annulée."); }
     say("Lecture de PITCH en cours… (≈ 30 s)");

@@ -6,6 +6,8 @@ export const PROFILE = {
   displayName: "Jo",
   /** Programme PITCH */
   program: "CP_FISE",
+  /** Semestre en cours (filtre « Ce semestre ») */
+  currentPeriod: "I4.7",
   /** Seuil de validation par défaut d'une compétence (%) */
   defaultThreshold: 70,
   /** Les tâches de révision antérieures à cette date ne sont pas générées (sauf `planStart` dans la progression) */

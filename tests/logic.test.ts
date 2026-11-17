@@ -3,8 +3,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { classify, parseIcs } from "../lib/ics.ts";
-import { buildTasks, mapEvents, aaScore, compScore } from "../lib/progress.ts";
-import { normalizeReferential } from "../lib/referential.ts";
+import { aaOfficial, aaState, buildTasks, compOfficial, compState, critId, critState, isFeelingReady, mapEvents } from "../lib/progress.ts";
+import { criterionStatus, interpretStatus, normalizeReferential } from "../lib/referential.ts";
 import { dayKey, parisMinutes, weekStart, addMonths } from "../lib/dates.ts";
 import { emptyProgress, type PitchRaw, type PlanningPayload } from "../lib/types.ts";
 
@@ -60,19 +60,82 @@ test("tâches de révision : identifiants stables t-<id>-<J>, textes écrit / or
   assert.ok(tasks.every((t) => t.date >= new Date("2026-11-15T00:00:00Z")));
 });
 
-test("référentiel : C02/C12 absentes, AA hors parcours, scores", () => {
+test("référentiel : C02/C12 absentes, AA hors parcours, Marketing rattaché", () => {
   const ref = normalizeReferential(pitch);
-  const missing = ref.competences.filter((c) => c.missing).map((c) => c.code);
-  assert.deepEqual(missing, ["C02", "C12"]);
+  assert.deepEqual(ref.competences.filter((c) => c.missing).map((c) => c.code), ["C02", "C12"]);
   assert.ok(ref.aaList.some((a) => a.off), "au moins un AA hors parcours (LV2 débutant / FLE)");
-  assert.ok(ref.aa["AA-MEO-C07-CPE5-01"]?.courses.includes("MKT"), "Marketing rattaché à l'AA du PCE");
-  const a = ref.aaList.find((x) => !x.off && x.crit.length >= 2)!;
+  assert.ok(ref.aa["AA-MEO-C07-CPE5-01"]?.courses.includes("MKT"));
+});
+
+test("instantané sans résultats : aucune progression officielle (— et non 0 %)", () => {
+  const ref = normalizeReferential(pitch);
+  for (const a of ref.aaList) {
+    assert.equal(aaOfficial(a), null);
+    assert.equal(aaState(a), "pending");
+  }
+  for (const c of ref.competences) assert.equal(compOfficial(c), null);
+});
+
+test("statut brut PITCH → statut officiel (prudence : inconnu ≠ validé)", () => {
+  assert.equal(interpretStatus("A"), "validated");
+  assert.equal(interpretStatus("Acquis"), "validated");
+  assert.equal(interpretStatus("Validé"), "validated");
+  assert.equal(interpretStatus("NA"), "failed");
+  assert.equal(interpretStatus("Non acquis"), "failed");
+  assert.equal(interpretStatus(null), "pending");
+  assert.equal(interpretStatus("", "12"), "evaluated");
+  assert.equal(interpretStatus("Bizarre"), "evaluated");
+  const ev = (status: "validated" | "failed" | "evaluated" | "pending") => ({ course: "X", status });
+  assert.equal(criterionStatus([ev("failed"), ev("validated")]), "validated", "une itération validée suffit");
+  assert.equal(criterionStatus([ev("failed"), ev("pending")]), "failed");
+  assert.equal(criterionStatus([]), "pending");
+});
+
+test("progression officielle : PITCH prime, l'auto-évaluation n'entre jamais dans le calcul", () => {
+  const raw: PitchRaw = {
+    program: "CP_FISE",
+    competences: [
+      {
+        code: "C07",
+        title: "Stratégie",
+        minPct: 70,
+        progress: null,
+        ra: [
+          {
+            code: "RA1",
+            title: "RA",
+            aa: [
+              {
+                code: "AA1",
+                title: "AA évalué",
+                progress: null,
+                crit: [
+                  { code: "CRIT_1", title: "c1", courses: [{ code: "I4.7.MEO.06", eval: "Soutenance", status: "A" }] },
+                  { code: "CRIT_2", title: "c2", courses: [{ code: "I4.7.MEO.06", status: "NA" }, { code: "I4.7.MEO.06", status: null }] },
+                ],
+              },
+              { code: "AA2", title: "AA officiel", progress: 100, crit: [{ title: "c", courses: [{ code: "I4.7.MEO.06" }] }] },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+  const ref = normalizeReferential(raw);
+  const a1 = ref.aa["AA1"]!;
+  assert.equal(a1.crit[0]!.code, "CRIT_1");
+  assert.equal(a1.crit[0]!.evals[0]!.modality, "Soutenance");
+  assert.equal(a1.crit[1]!.evals.length, 2, "deux itérations conservées");
+  assert.equal(aaOfficial(a1), 0.5);
+  assert.equal(aaState(a1), "failed");
+  assert.equal(critState(a1.crit[1]!), "failed");
+  assert.equal(aaState(ref.aa["AA2"]!), "validated");
+  const comp = ref.competences.find((c) => c.code === "C07")!;
+  assert.equal(compOfficial(comp), 0.75);
+  assert.equal(compState(comp), "validated");
+  // L'auto-évaluation « prête » est stockée à part
   const s = emptyProgress();
-  s.c[a.code + "#0"] = 2;
-  s.c[a.code + "#1"] = 1;
-  assert.equal(aaScore(a, s), 1.5 / a.crit.length);
-  s.p[a.code] = 1;
-  assert.equal(aaScore(a, s), 1);
-  const comp = ref.competences.find((c) => c.code === a.comp)!;
-  assert.ok(compScore(comp, s) > 0);
+  s.c[critId(a1, 1)] = 2;
+  assert.ok(isFeelingReady(s, critId(a1, 1)));
+  assert.equal(aaOfficial(a1), 0.5, "inchangé par l'auto-évaluation");
 });

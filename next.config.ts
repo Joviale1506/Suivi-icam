@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Racine explicite : un package-lock.json hors du projet (dossier personnel) trompait la détection
+  outputFileTracingRoot: process.cwd(),
   async headers() {
     return [
       {

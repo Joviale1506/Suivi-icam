@@ -55,28 +55,60 @@ export interface PitchRaw {
 }
 
 /* ---------- Référentiel normalisé ---------- */
+/** Statut officiel d'un critère (ou d'une évaluation) */
+export type OfficialStatus = "validated" | "failed" | "evaluated" | "pending";
+/**
+ * Une évaluation d'un critère par une activité (= une itération possible).
+ * Les champs viennent tels quels de PITCH (`CourseList` de /api/locdetail).
+ */
+export interface Evaluation {
+  course: string;
+  courseTitle?: string;
+  /** Modalité (« Examen écrit », « Soutenance »…) */
+  modality?: string;
+  note?: string;
+  comment?: string;
+  /** Statut brut PITCH (valeurs à confirmer avec le mode diagnostic du favori) */
+  rawStatus?: string;
+  status: OfficialStatus;
+  period?: string;
+  group?: string;
+}
 export interface Criterion {
+  /** Code PITCH (TraitCode), absent de l'instantané du 15/11 */
+  code?: string;
   title: string;
   courses: string[];
   eval?: string;
   mandatory?: boolean;
+  evals: Evaluation[];
+  /** Statut officiel déduit des évaluations */
+  status: OfficialStatus;
 }
 export interface AA {
   code: string;
   title: string;
   sem: string;
+  periods: string[];
   /** AA hors parcours (tous ses cours sont hors parcours : LV2 débutant, FLE…) */
   off: boolean;
   courses: string[];
   ra: string;
   comp: string;
+  /** Progression officielle PITCH (0–100), null = pas de donnée */
   progress: number | null | undefined;
+  /** Compteurs PITCH : critères acquis / non acquis / total */
+  nbA?: number;
+  nbNA?: number;
+  nbTotal?: number;
   crit: Criterion[];
 }
 export interface RA {
   code: string;
   title: string;
   comp: string;
+  min?: number;
+  progress?: number | null;
   aa: AA[];
 }
 export interface Competence {
@@ -90,7 +122,7 @@ export interface Competence {
   ra: RA[];
 }
 export interface Referential {
-  meta: { extractedAt?: string; snapshot: boolean; programTitle?: string; program?: string };
+  meta: { extractedAt?: string; receivedAt?: string; snapshot: boolean; programTitle?: string; program?: string; periods: string[] };
   competences: Competence[];
   ra: Record<string, RA>;
   aa: Record<string, AA>;
