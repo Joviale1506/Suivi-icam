@@ -3,7 +3,7 @@ import { motion, useAnimationControls } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
-import { ThemeToggle, Wordmark } from "@/components/shell/shell";
+import { ThemeToggle } from "@/components/shell/shell";
 
 export function LoginForm() {
   const router = useRouter();
@@ -37,11 +37,13 @@ export function LoginForm() {
   return (
     <div className="w-full max-w-[22rem]">
       <div className="flex items-center justify-between">
-        <Wordmark className="text-[28px]" />
+        <span className="text-[12px] font-semibold tracking-[0.12em] uppercase">
+          Jo <span className="mx-1 text-muted">|</span> Carnet
+        </span>
         <ThemeToggle compact />
       </div>
-      <motion.form animate={shake} onSubmit={submit} className="mt-10 border-t border-line-strong pt-8">
-        <h1 className="t-page">Connexion</h1>
+      <motion.form animate={shake} onSubmit={submit} className="mt-10">
+        <h1 className="font-serif text-[44px] leading-[1.05] tracking-[-0.02em]">Bonjour.</h1>
         <p className="mt-2 text-[13px] text-muted">Compétences, planning et révisions.</p>
         <label className="t-label mt-8 block" htmlFor="pwd">
           Mot de passe

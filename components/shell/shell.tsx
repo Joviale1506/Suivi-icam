@@ -8,6 +8,7 @@ import { ago } from "@/lib/dates";
 import { useApp } from "@/components/providers/app-provider";
 import { cx } from "@/components/ui/primitives";
 import { CommandPaletteProvider, useCommandPalette } from "./command-palette";
+import { GradientField } from "@/components/ui/gradient-field";
 
 const NAV = [
   { href: "/", label: "Aujourd'hui", icon: Home },
@@ -123,12 +124,14 @@ export function Shell({ children }: { children: ReactNode }) {
     <CommandPaletteProvider>
       <div className="min-h-dvh">
         {/* Barre latérale (ordinateur) */}
-        <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-line px-4 py-6 lg:flex">
-          <Link href="/" className="px-2">
-            <Wordmark />
+        {/* Barre latérale (ordinateur) : panneau de taches floues, navigation en boutons empilés */}
+        <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-hidden px-5 py-7 lg:flex">
+          <GradientField />
+          <Link href="/" className="relative text-[12px] font-semibold tracking-[0.12em] uppercase">
+            Jo <span className="mx-1 text-muted">|</span> Carnet
           </Link>
-          <SearchButton className="mt-6" />
-          <nav className="mt-6 flex flex-col" aria-label="Navigation principale">
+          <SearchButton className="relative mt-8 bg-raised/80" />
+          <nav className="relative mt-6 flex flex-col gap-2" aria-label="Navigation principale">
             {NAV.map((n) => {
               const on = isActive(path, n.href);
               return (
@@ -137,28 +140,29 @@ export function Shell({ children }: { children: ReactNode }) {
                   href={n.href}
                   aria-current={on ? "page" : undefined}
                   className={cx(
-                    "relative flex min-h-9 items-center gap-2.5 rounded-md px-2 text-[13.5px] transition-colors duration-150",
-                    on ? "bg-hover font-medium text-fg" : "text-muted hover:text-fg",
+                    "flex min-h-10 items-center gap-2.5 rounded-lg border px-3.5 text-[11.5px] font-semibold tracking-[0.07em] uppercase transition-colors duration-150",
+                    on ? "border-fg bg-fg text-bg" : "border-line-strong bg-raised/85 text-fg hover:border-fg",
                   )}
                 >
-                  <n.icon className={cx("h-4 w-4", on ? "text-accent" : "")} strokeWidth={1.75} />
+                  <n.icon className="h-4 w-4" strokeWidth={1.75} />
                   {n.label}
                 </Link>
               );
             })}
           </nav>
-          <div className="mt-auto space-y-4 px-2">
+          <div className="relative mt-auto space-y-3 rounded-lg bg-raised/70 p-3">
             <Freshness />
             <ThemeToggle />
           </div>
         </aside>
 
-        {/* Barre du haut (mobile) */}
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-line bg-bg px-4 lg:hidden">
-          <Link href="/" aria-label="Accueil">
-            <Wordmark className="text-[20px]" />
+        {/* Barre du haut (mobile) : bande de taches */}
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 overflow-hidden border-b border-line px-4 lg:hidden">
+          <GradientField variant="band" />
+          <Link href="/" aria-label="Accueil" className="relative text-[12px] font-semibold tracking-[0.12em] uppercase">
+            Jo <span className="mx-1 text-muted">|</span> Carnet
           </Link>
-          <div className="-mr-2 flex items-center">
+          <div className="relative -mr-2 flex items-center">
             <MobileSearch />
             <Link href="/synchro" className={cx("btn-ghost h-11 w-11 p-0", isActive(path, "/synchro") && "text-accent")} aria-label="Synchronisation">
               <RefreshCw className="h-[18px] w-[18px]" />
@@ -167,7 +171,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <div className="lg:pl-56">
+        <div className="lg:pl-64">
           <main className="mx-auto w-full max-w-[1120px] px-4 pt-6 pb-28 sm:px-6 lg:px-10 lg:pt-10 lg:pb-16">{children}</main>
         </div>
 

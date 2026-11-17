@@ -58,13 +58,15 @@ public/pitch-sync.js    script du favori PITCH (exécuté sur pitch-icam.rima1.f
 - Lien évaluation → créneaux : `lib/activities.ts` (cours + type compatible avec la modalité), corrections manuelles dans `config/activity-map.ts`.
 - Academ Compass : **aucun appel, aucun connecteur** tant que l'école n'a pas donné son accord.
 
-## Design system « Carnet »
-- Papier `--bg` (clair) / encre (sombre), un seul accent `--accent` (cobalt), états `--ok` / `--warn` / `--none`, `--bad` réservé aux retards et erreurs. Jetons dans `app/globals.css`.
-- Typo : `font-serif` Newsreader (titres `.t-page`, chiffre clé `.t-display`), Geist (interface), Geist Mono (codes `.t-code`), `.num` pour les chiffres tabulaires.
-- Structure : `<Section>` (étiquette + filet), `.row` / `.row-link` (lignes de 44 px), `.panel` rarement. Pas de cartes, d'ombres, de dégradés, de verre ni d'emoji.
-- Mouvement : 150–200 ms, `ease [0.2,0.8,0.2,1]`, fondu de page sans transform.
-- Recherche ⌘K / `/` : `components/shell/command-palette.tsx` + `lib/search.ts` (insensible aux accents).
-- PWA : `public/manifest.webmanifest` (installable).
+## Design system « Carnet » (inspiré du modèle Wix « CV créatif »)
+- On reprend le **langage visuel** du modèle (pas ses images, textes ni nom) : aplat rose poudré `--bg`, panneau de taches de couleur floues (`<GradientField />`, classes `.blob-*`), grand titre serif, sans-serif ronde, boutons blancs à bord fin et libellés en capitales (`.btn`, `.btn-stack`), cadre arrondi à ombre douce (`shadow-soft`).
+- Les taches ne servent que de décor (barre latérale, bande mobile, cadre de l’accueil, connexion) ; les pages de travail restent sur l’aplat, lisibles.
+- Un seul accent `--accent` (bleu de la tache bleue), états `--ok` / `--warn` / `--none`, `--bad` réservé aux retards et erreurs. Mode sombre : prune foncé, taches à 38 %.
+- Typo : Figtree (interface, `@fontsource-variable/figtree`), Newsreader (titres, chiffres clés), Geist Mono (codes `.t-code`), `.num` pour les chiffres tabulaires.
+- Structure : `<Section>` (étiquette + filet), `.row` / `.row-link` (lignes de 44 px). Pas d’emoji.
+- Mouvement : 150–200 ms, fondu de page sans transform ; taches à dérive très lente, figées si `prefers-reduced-motion`.
+- `GradientField` n’importe rien de client : il peut être rendu par un composant serveur (page de connexion).
+- Recherche ⌘K / `/` : `components/shell/command-palette.tsx` + `lib/search.ts` (insensible aux accents). PWA : `public/manifest.webmanifest`.
 
 ## Conventions
 - Interface et commentaires en français. Code en anglais.

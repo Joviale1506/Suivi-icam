@@ -129,6 +129,7 @@ test("la progression réapparaît après rechargement", async ({ page }) => {
 test("recherche ⌘K insensible aux accents", async ({ page }, info) => {
   await login(page);
   await page.goto("/");
+  await page.waitForLoadState("networkidle"); // le raccourci n'existe qu'une fois la page hydratée
   await page.keyboard.press("Control+k");
   const box = page.getByRole("dialog", { name: "Recherche" });
   await expect(box).toBeVisible();

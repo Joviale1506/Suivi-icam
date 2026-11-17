@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "@fontsource-variable/newsreader/opsz.css";
 import "@fontsource-variable/newsreader/opsz-italic.css";
+import "@fontsource-variable/figtree";
 import { Providers } from "@/components/providers/theme-provider";
 import "./globals.css";
 
@@ -18,8 +19,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f3ee" },
-    { media: "(prefers-color-scheme: dark)", color: "#121210" },
+    { media: "(prefers-color-scheme: light)", color: "#fad9dc" },
+    { media: "(prefers-color-scheme: dark)", color: "#1b1417" },
   ],
 };
 

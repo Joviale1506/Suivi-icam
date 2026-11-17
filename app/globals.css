@@ -4,43 +4,55 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* =====================================================================
-   Design system « Carnet × Console »
-   Papier (clair) / encre (sombre), un seul accent (cobalt), filets fins,
-   serif éditoriale pour les titres et les chiffres clés, mono pour les codes.
+   Design system « Carnet », inspiré du modèle Wix « CV créatif » :
+   aplat rose poudré, panneau de taches de couleur floues, grand titre serif,
+   sans-serif ronde (Figtree), boutons blancs à bord fin et libellés en capitales.
+   Un seul accent (bleu, repris de la tache bleue), états sobres.
    ===================================================================== */
 :root {
-  --bg: #f5f3ee;
-  --raised: #fbfaf7;
-  --hover: #edeae2;
-  --fg: #1b1a17;
-  --muted: #5f5b52; /* ≥ 6:1 sur --bg */
-  --faint: #8f8a7f; /* décoratif uniquement */
-  --line: #e2ded4;
-  --line-strong: #cbc5b8;
-  --accent: #2d45c8; /* cobalt */
+  --bg: #fad9dc; /* rose poudré (moitié droite du modèle) */
+  --side: #fce6e8; /* rose pâle sous les taches (moitié gauche) */
+  --raised: #ffffff;
+  --hover: #f6c9ce;
+  --fg: #141113;
+  --muted: #5a464b; /* ≥ 6:1 sur --bg */
+  --faint: #9b8288; /* décoratif uniquement */
+  --line: #efbcc3;
+  --line-strong: #b39ca2;
+  --accent: #1d5bbf; /* bleu de la tache, ≥ 5:1 sur --bg */
   --accent-fg: #ffffff;
   /* États : validé / vigilance / non évalué (+ erreur, réservé aux retards et messages) */
-  --ok: #2d6a44;
-  --warn: #8f5a00;
-  --none: #8f8a7f;
-  --bad: #b3321f;
+  --ok: #24643e;
+  --warn: #874600;
+  --none: #9b8288;
+  --bad: #a3162f;
+  /* Taches de couleur */
+  --blob-1: #ffa24c; /* orange */
+  --blob-2: #ff6f6f; /* corail */
+  --blob-3: #6ec6ff; /* bleu ciel */
+  --blob-4: #ff8fb1; /* rose */
+  --blob-opacity: 0.85;
+  --shadow-soft: 0 18px 40px -18px rgb(90 30 45 / 0.35);
   color-scheme: light;
 }
 .dark {
-  --bg: #121210;
-  --raised: #1a1a17;
-  --hover: #23231f;
-  --fg: #ece8de;
-  --muted: #a39e91;
-  --faint: #6e6a60;
-  --line: #2a2925;
-  --line-strong: #3b3934;
-  --accent: #8ea2ff;
-  --accent-fg: #10132b;
-  --ok: #6cc08e;
-  --warn: #e2aa4a;
-  --none: #77736a;
-  --bad: #f07a66;
+  --bg: #1b1417;
+  --side: #22191d;
+  --raised: #261c21;
+  --hover: #33262c;
+  --fg: #f8e9ec;
+  --muted: #c4abb1;
+  --faint: #806a70;
+  --line: #3b2c32;
+  --line-strong: #5e4b52;
+  --accent: #8cb8ff;
+  --accent-fg: #0e1a2e;
+  --ok: #78c99a;
+  --warn: #eeb35a;
+  --none: #806a70;
+  --bad: #ff8094;
+  --blob-opacity: 0.38;
+  --shadow-soft: 0 18px 40px -18px rgb(0 0 0 / 0.6);
   color-scheme: dark;
 }
 
@@ -59,7 +71,9 @@
   --color-warn: var(--warn);
   --color-none: var(--none);
   --color-bad: var(--bad);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --color-side: var(--side);
+  --shadow-soft: var(--shadow-soft);
+  --font-sans: "Figtree Variable", "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: "Newsreader Variable", "Newsreader", Georgia, serif;
   --radius-sm: 4px;
@@ -130,12 +144,16 @@ a {
     @apply -mx-2 rounded-md px-2 hover:bg-hover;
   }
 
-  /* Contrôles */
+  /* Contrôles : boutons blancs, bord fin, libellé en capitales (signature du modèle) */
   .btn {
-    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-line-strong bg-raised px-3 text-[13px] font-medium transition-colors duration-150 hover:bg-hover disabled:cursor-default disabled:opacity-50;
+    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-line-strong bg-raised px-3.5 text-[11.5px] font-semibold tracking-[0.06em] uppercase transition-colors duration-150 hover:border-fg disabled:cursor-default disabled:opacity-50;
   }
   .btn-accent {
-    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md bg-accent px-3 text-[13px] font-medium text-accent-fg transition-[filter] duration-150 hover:brightness-110 disabled:opacity-50;
+    @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-fg bg-fg px-3.5 text-[11.5px] font-semibold tracking-[0.06em] text-bg uppercase transition-opacity duration-150 hover:opacity-85 disabled:opacity-50;
+  }
+  /* Grand bouton de lien empilé (comme « BLOG / PODCAST… » du modèle) */
+  .btn-stack {
+    @apply flex min-h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-line-strong bg-raised px-4 text-[12px] font-semibold tracking-[0.06em] uppercase transition-colors duration-150 hover:border-fg;
   }
   .btn-ghost {
     @apply inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 text-[13px] text-muted transition-colors duration-150 hover:bg-hover hover:text-fg;
@@ -303,3 +321,30 @@ a {
 .fiche-prose .small { font-size: 13px; }
 .fiche-prose details { margin: 0.6rem 0; padding: 0.4rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .fiche-prose summary { cursor: pointer; font-weight: 600; }
+
+/* ---------- Champ de taches floues (panneau gauche du modèle) ---------- */
+.blob-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--side);
+  pointer-events: none;
+}
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: var(--blob-opacity);
+  will-change: transform;
+}
+@keyframes blob-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6%, -5%, 0) scale(1.08); }
+}
+.blob-a { background: var(--blob-1); animation: blob-drift 40s ease-in-out infinite; }
+.blob-b { background: var(--blob-2); animation: blob-drift 52s ease-in-out infinite reverse; }
+.blob-c { background: var(--blob-3); animation: blob-drift 46s ease-in-out infinite; }
+.blob-d { background: var(--blob-4); animation: blob-drift 58s ease-in-out infinite reverse; }
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none !important; }
+}

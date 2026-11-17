@@ -10,42 +10,60 @@ import { useApp } from "@/components/providers/app-provider";
 import { Freshness } from "@/components/shell/shell";
 import { Bar, CourseDot, Empty, Pct, Section, StateTag, cx } from "@/components/ui/primitives";
 import { EventRow, TaskRow } from "@/components/planning/rows";
+import { GradientField } from "@/components/ui/gradient-field";
 
-/* ---------- Information clé ---------- */
-function NextEvaluation() {
+/* ---------- En-tête : cadre « photo » à gauche, titre serif et boutons empilés à droite ---------- */
+function Hero() {
   const { events, now, cname } = useApp();
   const next = events.find((e) => e.isExam && e.end > now);
-  if (!next)
-    return (
-      <div>
-        <p className="t-label">Prochaine évaluation</p>
-        <p className="t-display mt-3">Rien de planifié</p>
-      </div>
-    );
-  const d = daysUntil(next.start, now);
-  const started = next.start <= now;
+  const d = next ? daysUntil(next.start, now) : null;
+  const started = !!next && next.start <= now;
+  const big = !next ? "—" : started ? "En cours" : d === 0 ? "Auj." : d === 1 ? "Demain" : `J-${d}`;
   return (
-    <div>
-      <p className="t-label">Prochaine évaluation</p>
-      <p className="t-display mt-3">
-        {started ? "En cours" : d === 0 ? "Aujourd'hui" : d === 1 ? "Demain" : (
-          <>
-            dans {d}&nbsp;<span className="text-muted italic">jours</span>
-          </>
-        )}
-      </p>
-      <div className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[14px]">
-        <span className="font-medium">{next.name}</span>
-        <span className="chip border-accent text-accent">{next.type}</span>
-        <span className="num text-muted">
-          {fmtDay.format(next.start)} · {fmtTime.format(next.start)}
-          {next.location && ` · ${next.location}`}
-        </span>
-        {next.courses[0] && (
-          <Link href={courseHref(next.courses[0], "fiches")} className="inline-flex items-center gap-1 text-accent hover:underline">
-            Fiche {cname(next.courses[0])} <ArrowRight className="h-3.5 w-3.5" />
+    <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-2 md:gap-12">
+      {/* Cadre arrondi, ombre douce, taches floues : la place de la photo du modèle */}
+      <div className="relative order-2 aspect-[5/4] overflow-hidden rounded-2xl shadow-soft md:order-1 md:aspect-square md:max-w-[22rem]">
+        <GradientField />
+        <div className="relative flex h-full flex-col justify-between p-6">
+          <p className="text-[11px] font-semibold tracking-[0.12em] uppercase">Prochaine évaluation</p>
+          <div>
+            <p className="num font-serif text-[72px] leading-[0.9] tracking-[-0.03em] sm:text-[88px]">{big}</p>
+            {next && (
+              <>
+                <p className="mt-3 text-[15px] font-semibold">{next.name}</p>
+                <p className="num mt-0.5 text-[13px]">
+                  {next.type} · {fmtDay.format(next.start)} · {fmtTime.format(next.start)}
+                  {next.location && ` · ${next.location}`}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="order-1 md:order-2">
+        <h1 className="font-serif text-[40px] leading-[1.05] tracking-[-0.02em] sm:text-[52px]">
+          {greeting(now)},
+          <br />
+          {PROFILE.displayName}.
+        </h1>
+        <p className="mt-3 text-[16px] leading-snug sm:text-[17px]">
+          <span className="first-letter:uppercase">{fmtDayLong.format(now)}</span>.{" "}
+          {next && !started && d != null && d > 1 ? `Ta prochaine évaluation est dans ${d} jours.` : next ? "Une évaluation approche." : "Aucune évaluation planifiée."}
+        </p>
+        <div className="mt-6 flex max-w-sm flex-col gap-2.5">
+          {next?.courses[0] && (
+            <Link href={courseHref(next.courses[0], "fiches")} className="btn-stack">
+              Fiche {cname(next.courses[0])}
+            </Link>
+          )}
+          <Link href="/planning" className="btn-stack">
+            Planning
           </Link>
-        )}
+          <Link href="/competences" className="btn-stack">
+            Compétences
+          </Link>
+        </div>
+        <Freshness className="mt-5 lg:hidden" />
       </div>
     </div>
   );
@@ -252,20 +270,9 @@ function CompetenceMap() {
 }
 
 export function Dashboard() {
-  const { now } = useApp();
   return (
-    <div className="space-y-12">
-      <div>
-        <div className="flex items-start justify-between gap-4">
-          <p className="text-[13px] text-muted">
-            <span className="first-letter:uppercase">{fmtDayLong.format(now)}</span> · {greeting(now)} {PROFILE.displayName}
-          </p>
-          <Freshness className="text-right lg:hidden [&_a]:justify-end [&>div]:justify-end" />
-        </div>
-        <div className="mt-6">
-          <NextEvaluation />
-        </div>
-      </div>
+    <div className="space-y-14">
+      <Hero />
       <Timeline />
       <Insights />
       <div className="grid grid-cols-1 gap-x-10 gap-y-12 md:grid-cols-2">
